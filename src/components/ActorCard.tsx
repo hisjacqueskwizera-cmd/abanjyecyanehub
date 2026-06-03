@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { Eye } from "lucide-react";
 import type { Actor } from "@/data/actors";
 import { initials, portraitGradient } from "@/data/actors";
 
@@ -31,14 +32,23 @@ export function ActorCard({ actor }: { actor: Actor }) {
         </div>
       </div>
       <div className="p-4">
-        <h3 className="font-display text-lg font-semibold leading-tight text-ink">{actor.fullName}</h3>
-        <p className="mt-0.5 text-xs uppercase tracking-wider text-muted-foreground">{actor.nationality}</p>
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="font-display text-lg font-semibold leading-tight text-ink">
+            {actor.fullName}
+          </h3>
+          <span
+            aria-label="View details"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sky-soft text-sky transition-colors group-hover:bg-ink group-hover:text-sky"
+          >
+            <Eye className="h-4 w-4" />
+          </span>
+        </div>
+        <p className="mt-0.5 text-xs uppercase tracking-wider text-muted-foreground">
+          {actor.nationality}
+        </p>
         {actor.tagline && (
           <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{actor.tagline}</p>
         )}
-        <span className="mt-3 inline-flex items-center text-sm font-medium text-sky group-hover:underline">
-          View Profile →
-        </span>
       </div>
     </Link>
   );

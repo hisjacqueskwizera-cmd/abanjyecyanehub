@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { ChevronUp, Instagram, Linkedin, X } from "lucide-react";
+import { Eye, Instagram, Linkedin, X } from "lucide-react";
 import { actorsQueryOptions } from "@/lib/actors-query";
 import { initials, portraitGradient, type Actor } from "@/data/actors";
+import { MobileTopBar } from "./MobileTopBar";
 
 export function MobileReels() {
   const { data: actors } = useSuspenseQuery(actorsQueryOptions);
@@ -12,6 +13,7 @@ export function MobileReels() {
 
   return (
     <div className="relative h-[100dvh] w-full overflow-y-scroll snap-y-mandatory no-scrollbar md:hidden">
+      <MobileTopBar variant="dark" />
       {actors.map((a) => (
         <Reel key={a.id} actor={a} onOpen={() => setOpenId(a.id)} />
       ))}
@@ -48,9 +50,10 @@ function Reel({ actor, onOpen }: { actor: Actor; onOpen: () => void }) {
         </div>
         <button
           onClick={onOpen}
-          className="mt-5 inline-flex items-center gap-2 rounded-full bg-sky px-5 py-3 text-sm font-semibold text-ink shadow-lg"
+          aria-label="View details"
+          className="mt-5 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.2em] text-white backdrop-blur ring-1 ring-white/20"
         >
-          <ChevronUp className="h-4 w-4" /> View Details
+          <Eye className="h-4 w-4 text-sky" /> View details
         </button>
       </div>
 

@@ -4,6 +4,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Search } from "lucide-react";
 import { FloatingNav } from "@/components/FloatingNav";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { MobileTopBar } from "@/components/MobileTopBar";
 import { ActorCard } from "@/components/ActorCard";
 import { Footer } from "@/components/Footer";
 import { actorsQueryOptions } from "@/lib/actors-query";
@@ -56,7 +57,9 @@ function ActorsPage() {
   return (
     <>
       <FloatingNav />
-      <main className="pt-24 md:pt-32 pb-16">
+      <MobileTopBar />
+      <main className="pt-20 md:pt-32 pb-24">
+
         <div className="mx-auto max-w-6xl px-4 md:px-6">
           <header className="mb-8">
             <p className="text-xs uppercase tracking-[0.3em] text-sky">CyaneHub Roster</p>

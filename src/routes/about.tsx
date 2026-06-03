@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Mail, MapPin, Phone, Target, Eye, Heart } from "lucide-react";
 import { FloatingNav } from "@/components/FloatingNav";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { MobileTopBar } from "@/components/MobileTopBar";
 import { Footer } from "@/components/Footer";
 
 export const Route = createFileRoute("/about")({

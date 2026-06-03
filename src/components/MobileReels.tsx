@@ -50,9 +50,10 @@ function Reel({ actor, onOpen }: { actor: Actor; onOpen: () => void }) {
         </div>
         <button
           onClick={onOpen}
-          className="mt-5 inline-flex items-center gap-2 rounded-full bg-sky px-5 py-3 text-sm font-semibold text-ink shadow-lg"
+          aria-label="View details"
+          className="mt-5 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.2em] text-white backdrop-blur ring-1 ring-white/20"
         >
-          <ChevronUp className="h-4 w-4" /> View Details
+          <Eye className="h-4 w-4 text-sky" /> View details
         </button>
       </div>
 

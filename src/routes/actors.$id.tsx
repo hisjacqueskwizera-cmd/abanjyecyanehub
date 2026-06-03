@@ -188,6 +188,11 @@ function ActorProfile() {
                       <Linkedin className="h-4 w-4" /> LinkedIn
                     </a>
                   )}
+                  <ShareButton
+                    title={`${actor.fullName} | CyaneHub`}
+                    text={actor.tagline ?? undefined}
+                    path={`/actors/${actor.id}`}
+                  />
                 </div>
               </div>
             </div>

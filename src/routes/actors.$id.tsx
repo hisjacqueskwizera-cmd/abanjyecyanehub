@@ -450,10 +450,20 @@ function RelatedCard({ actor }: { actor: Actor }) {
         style={{ background: portraitGradient(actor.fullName) }}
       >
         <div className="absolute inset-0 imigongo-bg opacity-25 mix-blend-overlay" />
-        <span className="absolute inset-0 flex items-center justify-center font-display text-4xl font-bold text-white/90">
-          {initials(actor.fullName)}
-        </span>
+        {actor.profilePhoto ? (
+          <img
+            src={actor.profilePhoto}
+            alt={actor.fullName}
+            loading="lazy"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        ) : (
+          <span className="absolute inset-0 flex items-center justify-center font-display text-4xl font-bold text-white/90">
+            {initials(actor.fullName)}
+          </span>
+        )}
       </div>
+
       <div className="p-3">
         <p className="font-display text-sm font-semibold leading-tight text-ink">{actor.fullName}</p>
         <p className="text-[11px] uppercase tracking-wider text-muted-foreground">

@@ -14,7 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      actors: {
+        Row: {
+          bio: string | null
+          created_at: string
+          dob: string | null
+          featured: boolean
+          filmography: string | null
+          full_name: string
+          genres: string[]
+          id: string
+          instagram: string | null
+          journey: string | null
+          languages: string[]
+          linkedin: string | null
+          nationality: string | null
+          slug: string
+          sort_order: number
+          tagline: string | null
+          updated_at: string
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string
+          dob?: string | null
+          featured?: boolean
+          filmography?: string | null
+          full_name: string
+          genres?: string[]
+          id?: string
+          instagram?: string | null
+          journey?: string | null
+          languages?: string[]
+          linkedin?: string | null
+          nationality?: string | null
+          slug: string
+          sort_order?: number
+          tagline?: string | null
+          updated_at?: string
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string
+          dob?: string | null
+          featured?: boolean
+          filmography?: string | null
+          full_name?: string
+          genres?: string[]
+          id?: string
+          instagram?: string | null
+          journey?: string | null
+          languages?: string[]
+          linkedin?: string | null
+          nationality?: string | null
+          slug?: string
+          sort_order?: number
+          tagline?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

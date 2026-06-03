@@ -210,11 +210,52 @@ function ActorProfile() {
               </SectionBlock>
             )}
 
+            {reels.length > 0 && (
+              <SectionBlock icon={PlayCircle} title="Watch · Reels & Trailers">
+                <div className="grid gap-5 sm:grid-cols-2">
+                  {reels.map((f, i) => {
+                    const embed = toYouTubeEmbed(f.url!)!;
+                    return (
+                      <figure
+                        key={`reel-${i}`}
+                        className="overflow-hidden rounded-2xl border bg-ink shadow-[var(--shadow-elevate)]"
+                      >
+                        <div className="relative aspect-video w-full bg-black">
+                          <iframe
+                            src={embed}
+                            title={f.title}
+                            loading="lazy"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            allowFullScreen
+                            referrerPolicy="strict-origin-when-cross-origin"
+                            className="absolute inset-0 h-full w-full"
+                          />
+                        </div>
+                        <figcaption className="flex items-center justify-between gap-3 p-3 text-white">
+                          <div className="min-w-0">
+                            <p className="truncate font-display text-sm font-semibold">{f.title}</p>
+                            {f.detail && (
+                              <p className="truncate text-[11px] text-white/60">{f.detail}</p>
+                            )}
+                          </div>
+                          {f.year && (
+                            <span className="rounded-full bg-sky px-2 py-0.5 text-[10px] font-bold text-ink">
+                              {f.year}
+                            </span>
+                          )}
+                        </figcaption>
+                      </figure>
+                    );
+                  })}
+                </div>
+              </SectionBlock>
+            )}
+
             {films.length > 0 && (
               <SectionBlock icon={Film} title="Filmography">
-                <ul className="divide-y divide-border rounded-2xl border bg-card">
+                <ul className="divide-y divide-border overflow-hidden rounded-2xl border bg-card">
                   {films.map((f, i) => (
-                    <li key={`${f.title}-${i}`} className="flex items-start gap-4 p-4">
+                    <li key={`${f.title}-${i}`} className="flex items-start gap-3 p-4">
                       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-soft text-sky">
                         <Film className="h-5 w-5" />
                       </span>
@@ -224,14 +265,36 @@ function ActorProfile() {
                           <p className="mt-0.5 text-sm text-muted-foreground">{f.detail}</p>
                         )}
                       </div>
-                      {f.year && (
-                        <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-semibold text-ink">
-                          {f.year}
-                        </span>
-                      )}
+                      <div className="flex shrink-0 items-center gap-2">
+                        {f.year && (
+                          <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-semibold text-ink">
+                            {f.year}
+                          </span>
+                        )}
+                        {f.url && (
+                          <a
+                            href={f.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            aria-label={`Watch ${f.title}`}
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-ink text-sky hover:bg-ink/90"
+                          >
+                            {toYouTubeEmbed(f.url) ? (
+                              <PlayCircle className="h-4 w-4" />
+                            ) : (
+                              <ExternalLink className="h-3.5 w-3.5" />
+                            )}
+                          </a>
+                        )}
+                      </div>
                     </li>
                   ))}
                 </ul>
+                {externalLinks.length > 0 && (
+                  <p className="mt-2 text-[11px] text-muted-foreground">
+                    Tap the link icon to open trailers and external pages in a new tab.
+                  </p>
+                )}
               </SectionBlock>
             )}
 

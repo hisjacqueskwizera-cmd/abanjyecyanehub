@@ -28,10 +28,20 @@ function Reel({ actor, onOpen }: { actor: Actor; onOpen: () => void }) {
       className="relative flex h-[100dvh] w-full snap-start items-end overflow-hidden"
       style={{ background: portraitGradient(actor.fullName) }}
     >
-      <div className="absolute inset-0 imigongo-bg opacity-20 mix-blend-overlay" />
-      <span className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-display text-[14rem] font-black leading-none text-white/15">
-        {initials(actor.fullName)}
-      </span>
+      {actor.profilePhoto ? (
+        <img
+          src={actor.profilePhoto}
+          alt={actor.fullName}
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+      ) : (
+        <>
+          <div className="absolute inset-0 imigongo-bg opacity-20 mix-blend-overlay" />
+          <span className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-display text-[14rem] font-black leading-none text-white/15">
+            {initials(actor.fullName)}
+          </span>
+        </>
+      )}
       <div className="absolute inset-x-0 bottom-0 top-1/3 bg-gradient-to-t from-black/85 via-black/40 to-transparent" />
 
       <div className="relative z-10 w-full p-6 pb-32 text-white">

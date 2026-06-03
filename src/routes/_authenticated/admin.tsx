@@ -338,6 +338,15 @@ function AdminPage() {
         </div>
       </div>
 
+      {/* Mobile FAB */}
+      <button
+        onClick={() => setEditing({ open: true, actor: null })}
+        aria-label="New actor"
+        className="sm:hidden fixed bottom-5 right-5 z-30 inline-flex h-14 w-14 items-center justify-center rounded-full bg-ink text-white shadow-[0_15px_40px_-10px_rgba(0,0,0,0.45)] active:scale-95"
+      >
+        <Plus className="h-6 w-6" />
+      </button>
+
       <ActorFormDialog
         open={editing.open}
         actor={editing.actor}

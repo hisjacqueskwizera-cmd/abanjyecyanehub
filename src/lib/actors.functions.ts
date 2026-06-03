@@ -16,10 +16,11 @@ export interface ActorRow {
   filmography: string | null;
   journey: string | null;
   featured: boolean;
+  profilePhoto: string | null;
 }
 
 const SELECT_COLS =
-  "id, slug, full_name, nationality, dob, tagline, bio, genres, languages, instagram, linkedin, filmography, journey, featured";
+  "id, slug, full_name, nationality, dob, tagline, bio, genres, languages, instagram, linkedin, filmography, journey, featured, profile_photo";
 
 const mapRow = (r: Record<string, unknown>): ActorRow => ({
   id: r.slug as string,
@@ -36,6 +37,7 @@ const mapRow = (r: Record<string, unknown>): ActorRow => ({
   filmography: (r.filmography as string | null) ?? null,
   journey: (r.journey as string | null) ?? null,
   featured: Boolean(r.featured),
+  profilePhoto: (r.profile_photo as string | null) ?? null,
 });
 
 export const listActors = createServerFn({ method: "GET" }).handler(async () => {

@@ -95,10 +95,20 @@ function ActorProfile() {
 
             <div className="mt-8 grid items-end gap-8 md:mt-10 md:grid-cols-[minmax(0,1fr)_2fr]">
               <div className="relative mx-auto aspect-[3/4] w-full max-w-[280px] overflow-hidden rounded-3xl ring-4 ring-white/30 shadow-[var(--shadow-elevate)] md:mx-0 md:max-w-none">
-                <div className="absolute inset-0 imigongo-bg opacity-25 mix-blend-overlay" />
-                <span className="absolute inset-0 flex items-center justify-center font-display text-[6rem] font-black text-white/85">
-                  {initials(actor.fullName)}
-                </span>
+                {actor.profilePhoto ? (
+                  <img
+                    src={actor.profilePhoto}
+                    alt={actor.fullName}
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
+                ) : (
+                  <>
+                    <div className="absolute inset-0 imigongo-bg opacity-25 mix-blend-overlay" />
+                    <span className="absolute inset-0 flex items-center justify-center font-display text-[6rem] font-black text-white/85">
+                      {initials(actor.fullName)}
+                    </span>
+                  </>
+                )}
                 {actor.featured && (
                   <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-sky px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-ink">
                     <Star className="h-3 w-3" /> Featured

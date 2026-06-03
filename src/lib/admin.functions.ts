@@ -19,6 +19,7 @@ const ActorInput = z.object({
   featured: z.boolean(),
   sort_order: z.number().int().min(0).max(100000),
   profile_photo: z.string().max(1000).nullable().optional(),
+  gallery: z.array(z.string().min(1).max(1000)).max(20).default([]),
 });
 
 export type ActorInputType = z.infer<typeof ActorInput>;

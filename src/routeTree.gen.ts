@@ -10,19 +10,14 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SearchRouteImport } from './routes/search'
-import { Route as ActorsRouteImport } from './routes/actors'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ActorsIndexRouteImport } from './routes/actors.index'
 import { Route as ActorsIdRouteImport } from './routes/actors.$id'
 
 const SearchRoute = SearchRouteImport.update({
   id: '/search',
   path: '/search',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ActorsRoute = ActorsRouteImport.update({
-  id: '/actors',
-  path: '/actors',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -35,47 +30,53 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ActorsIndexRoute = ActorsIndexRouteImport.update({
+  id: '/actors/',
+  path: '/actors/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ActorsIdRoute = ActorsIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => ActorsRoute,
+  id: '/actors/$id',
+  path: '/actors/$id',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/actors': typeof ActorsRouteWithChildren
   '/search': typeof SearchRoute
   '/actors/$id': typeof ActorsIdRoute
+  '/actors/': typeof ActorsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/actors': typeof ActorsRouteWithChildren
   '/search': typeof SearchRoute
   '/actors/$id': typeof ActorsIdRoute
+  '/actors': typeof ActorsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/actors': typeof ActorsRouteWithChildren
   '/search': typeof SearchRoute
   '/actors/$id': typeof ActorsIdRoute
+  '/actors/': typeof ActorsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/actors' | '/search' | '/actors/$id'
+  fullPaths: '/' | '/about' | '/search' | '/actors/$id' | '/actors/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/actors' | '/search' | '/actors/$id'
-  id: '__root__' | '/' | '/about' | '/actors' | '/search' | '/actors/$id'
+  to: '/' | '/about' | '/search' | '/actors/$id' | '/actors'
+  id: '__root__' | '/' | '/about' | '/search' | '/actors/$id' | '/actors/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
-  ActorsRoute: typeof ActorsRouteWithChildren
   SearchRoute: typeof SearchRoute
+  ActorsIdRoute: typeof ActorsIdRoute
+  ActorsIndexRoute: typeof ActorsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -85,13 +86,6 @@ declare module '@tanstack/react-router' {
       path: '/search'
       fullPath: '/search'
       preLoaderRoute: typeof SearchRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/actors': {
-      id: '/actors'
-      path: '/actors'
-      fullPath: '/actors'
-      preLoaderRoute: typeof ActorsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -108,32 +102,29 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/actors/': {
+      id: '/actors/'
+      path: '/actors'
+      fullPath: '/actors/'
+      preLoaderRoute: typeof ActorsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/actors/$id': {
       id: '/actors/$id'
-      path: '/$id'
+      path: '/actors/$id'
       fullPath: '/actors/$id'
       preLoaderRoute: typeof ActorsIdRouteImport
-      parentRoute: typeof ActorsRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
 
-interface ActorsRouteChildren {
-  ActorsIdRoute: typeof ActorsIdRoute
-}
-
-const ActorsRouteChildren: ActorsRouteChildren = {
-  ActorsIdRoute: ActorsIdRoute,
-}
-
-const ActorsRouteWithChildren =
-  ActorsRoute._addFileChildren(ActorsRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
-  ActorsRoute: ActorsRouteWithChildren,
   SearchRoute: SearchRoute,
+  ActorsIdRoute: ActorsIdRoute,
+  ActorsIndexRoute: ActorsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

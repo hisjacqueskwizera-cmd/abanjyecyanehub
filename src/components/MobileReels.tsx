@@ -1,10 +1,62 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Eye, Instagram, Linkedin, X } from "lucide-react";
+import {
+  ArrowUpRight,
+  Calendar,
+  ChevronDown,
+  Eye,
+  Film,
+  Instagram,
+  Languages,
+  Linkedin,
+  MapPin,
+  PlayCircle,
+  Sparkles,
+} from "lucide-react";
 import { actorsQueryOptions } from "@/lib/actors-query";
 import { initials, portraitGradient, type Actor } from "@/data/actors";
 import { MobileTopBar } from "./MobileTopBar";
+
+function parseFilms(raw?: string | null) {
+  if (!raw) return [];
+  return raw
+    .split(/\r?\n|;/)
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const urlMatch = line.match(/https?:\/\/\S+/);
+      const url = urlMatch ? urlMatch[0].replace(/[)\].,]+$/, "") : undefined;
+      const cleaned = (url ? line.replace(url, "") : line).trim();
+      const yearMatch = cleaned.match(/\b(19|20)\d{2}(?:[-–]\d{2,4})?\b/);
+      const year = yearMatch ? yearMatch[0] : undefined;
+      const withoutYear = year
+        ? cleaned.replace(year, "").replace(/[()\s,|-]+$/, "").trim()
+        : cleaned;
+      const parts = withoutYear.split(/\s*[|·•]\s*|\s+[-–:]\s+/).filter(Boolean);
+      const title = (parts[0] || withoutYear).replace(/^[-•·\s|]+/, "").trim();
+      const detail = parts.slice(1).join(" · ").trim() || undefined;
+      return { title, detail, year, url };
+    });
+}
+
+function youTubeEmbed(url?: string) {
+  if (!url) return null;
+  try {
+    const u = new URL(url);
+    if (u.hostname.includes("youtu.be")) {
+      const id = u.pathname.slice(1);
+      return id ? `https://www.youtube.com/embed/${id}` : null;
+    }
+    if (u.hostname.includes("youtube.com")) {
+      const id = u.searchParams.get("v");
+      if (id) return `https://www.youtube.com/embed/${id}`;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
 
 export function MobileReels() {
   const { data: actors } = useSuspenseQuery(actorsQueryOptions);
@@ -76,30 +128,214 @@ function Reel({ actor, onOpen }: { actor: Actor; onOpen: () => void }) {
 
 function BottomSheet({ actor, onClose }: { actor: Actor | null; onClose: () => void }) {
   if (!actor) return null;
+  const year = actor.dob ? new Date(actor.dob).getFullYear() : null;
+  const films = parseFilms(actor.filmography);
+  const reels = films.filter((f) => f.url && youTubeEmbed(f.url));
+
   return (
     <div className="fixed inset-0 z-[60]">
       <button
         aria-label="Close"
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-float-in"
+        className="absolute inset-0 bg-black/70 backdrop-blur-sm animate-float-in"
         onClick={onClose}
       />
-      <div className="absolute inset-x-0 bottom-0 max-h-[90dvh] overflow-y-auto rounded-t-3xl bg-background shadow-[var(--shadow-elevate)] animate-float-in">
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b bg-background/90 px-5 py-3 backdrop-blur">
-          <div className="mx-auto h-1.5 w-12 rounded-full bg-border" />
-          <button
-            aria-label="Close"
-            onClick={onClose}
-            className="absolute right-3 top-3 rounded-full p-2 text-muted-foreground hover:bg-muted"
+      <div className="absolute inset-x-0 bottom-0 max-h-[92dvh] overflow-hidden rounded-t-[28px] bg-background shadow-[var(--shadow-elevate)] animate-float-in">
+        <button
+          aria-label="Close sheet"
+          onClick={onClose}
+          className="absolute inset-x-0 top-0 z-10 flex h-7 items-center justify-center"
+        >
+          <span className="mt-2 h-1.5 w-12 rounded-full bg-border" />
+        </button>
+
+        <div className="max-h-[92dvh] overflow-y-auto overscroll-contain pb-[calc(env(safe-area-inset-bottom)+96px)]">
+          <div
+            className="relative h-44 w-full"
+            style={{ background: portraitGradient(actor.fullName) }}
           >
-            <X className="h-4 w-4" />
-          </button>
+            {actor.profilePhoto ? (
+              <img
+                src={actor.profilePhoto}
+                alt={actor.fullName}
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+            ) : (
+              <>
+                <div className="absolute inset-0 imigongo-bg opacity-20 mix-blend-overlay" />
+                <span className="absolute inset-0 flex items-center justify-center font-display text-[5rem] font-black text-white/85">
+                  {initials(actor.fullName)}
+                </span>
+              </>
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
+            <button
+              onClick={onClose}
+              aria-label="Close"
+              className="absolute right-3 top-3 inline-flex h-9 items-center gap-1.5 rounded-full bg-black/55 px-3 text-xs font-semibold text-white backdrop-blur"
+            >
+              <ChevronDown className="h-4 w-4" /> Close
+            </button>
+            <div className="absolute inset-x-0 bottom-0 px-5 pb-3">
+              <p className="text-[10px] uppercase tracking-[0.3em] text-sky">
+                {actor.nationality ?? "CyaneHub Talent"}
+              </p>
+              <h3 className="font-display text-2xl font-bold leading-tight text-ink">
+                {actor.fullName}
+              </h3>
+              {actor.tagline && (
+                <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{actor.tagline}</p>
+              )}
+            </div>
+          </div>
+
+          <div className="flex gap-2 overflow-x-auto px-5 pt-3 pb-1 no-scrollbar">
+            {actor.languages.length > 0 && (
+              <Chip icon={<Languages className="h-3.5 w-3.5" />}>{actor.languages.join(", ")}</Chip>
+            )}
+            {actor.nationality && (
+              <Chip icon={<MapPin className="h-3.5 w-3.5" />}>{actor.nationality}</Chip>
+            )}
+            {year && <Chip icon={<Calendar className="h-3.5 w-3.5" />}>Born {year}</Chip>}
+          </div>
+
+          {actor.genres.length > 0 && (
+            <div className="px-5 pt-3">
+              <div className="flex flex-wrap gap-1.5">
+                {actor.genres.map((g) => (
+                  <span
+                    key={g}
+                    className="rounded-full bg-sky-soft px-3 py-1 text-xs font-medium text-ink"
+                  >
+                    {g}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {reels.length > 0 && (
+            <div className="mt-5">
+              <h4 className="flex items-center gap-1.5 px-5 text-[11px] font-semibold uppercase tracking-[0.25em] text-sky">
+                <PlayCircle className="h-3.5 w-3.5" /> Watch · Reels
+              </h4>
+              <div className="mt-2 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-1 no-scrollbar">
+                {reels.map((f, i) => (
+                  <figure
+                    key={`reel-${i}`}
+                    className="w-[82%] shrink-0 snap-start overflow-hidden rounded-2xl border bg-ink"
+                  >
+                    <div className="relative aspect-video w-full bg-black">
+                      <iframe
+                        src={youTubeEmbed(f.url) ?? undefined}
+                        title={f.title}
+                        loading="lazy"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowFullScreen
+                        className="absolute inset-0 h-full w-full"
+                      />
+                    </div>
+                    <figcaption className="flex items-center justify-between gap-2 p-3 text-white">
+                      <p className="truncate text-sm font-semibold">{f.title}</p>
+                      {f.year && (
+                        <span className="rounded-full bg-sky px-2 py-0.5 text-[10px] font-bold text-ink">
+                          {f.year}
+                        </span>
+                      )}
+                    </figcaption>
+                  </figure>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {actor.bio && (
+            <SheetSection icon={<Sparkles className="h-3.5 w-3.5" />} title="Biography">
+              <p className="whitespace-pre-line text-[14px] leading-relaxed text-foreground/90">
+                {actor.bio}
+              </p>
+            </SheetSection>
+          )}
+
+          {films.length > 0 && (
+            <SheetSection icon={<Film className="h-3.5 w-3.5" />} title="Filmography">
+              <ul className="divide-y divide-border overflow-hidden rounded-2xl border bg-card">
+                {films.map((f, i) => (
+                  <li key={`f-${i}`} className="flex items-center gap-3 p-3">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-sky-soft text-sky">
+                      <Film className="h-4 w-4" />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold text-ink">{f.title}</p>
+                      {f.detail && (
+                        <p className="truncate text-[12px] text-muted-foreground">{f.detail}</p>
+                      )}
+                    </div>
+                    {f.year && (
+                      <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-ink">
+                        {f.year}
+                      </span>
+                    )}
+                    {f.url && (
+                      <a
+                        href={f.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        aria-label={`Watch ${f.title}`}
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-ink text-sky"
+                      >
+                        {youTubeEmbed(f.url) ? (
+                          <PlayCircle className="h-4 w-4" />
+                        ) : (
+                          <ArrowUpRight className="h-4 w-4" />
+                        )}
+                      </a>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </SheetSection>
+          )}
+
+          {actor.journey && (
+            <SheetSection title="Urugendo / Journey">
+              <p className="whitespace-pre-wrap text-sm text-muted-foreground">{actor.journey}</p>
+            </SheetSection>
+          )}
+
+          <div className="mt-6 flex gap-3 px-5">
+            {actor.instagram && (
+              <a
+                href={
+                  actor.instagram.startsWith("http")
+                    ? actor.instagram
+                    : `https://instagram.com/${actor.instagram.replace(/[@\s]/g, "")}`
+                }
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium hover:bg-muted"
+              >
+                <Instagram className="h-4 w-4" /> Instagram
+              </a>
+            )}
+            {actor.linkedin && actor.linkedin.startsWith("http") && (
+              <a
+                href={actor.linkedin}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium hover:bg-muted"
+              >
+                <Linkedin className="h-4 w-4" /> LinkedIn
+              </a>
+            )}
+          </div>
         </div>
-        <ProfileBody actor={actor} compact />
-        <div className="sticky bottom-0 border-t bg-background/95 p-4 backdrop-blur">
+
+        <div className="absolute inset-x-0 bottom-0 border-t bg-background/95 px-4 pb-[calc(env(safe-area-inset-bottom)+12px)] pt-3 backdrop-blur">
           <Link
             to="/actors/$id"
             params={{ id: actor.id }}
-            className="block w-full rounded-full bg-ink py-3 text-center text-sm font-semibold text-white"
+            onClick={onClose}
+            className="block w-full rounded-full bg-ink py-3 text-center text-sm font-semibold text-white active:scale-[0.99]"
           >
             Open full profile
           </Link>
@@ -109,91 +345,31 @@ function BottomSheet({ actor, onClose }: { actor: Actor | null; onClose: () => v
   );
 }
 
-export function ProfileBody({ actor, compact = false }: { actor: Actor; compact?: boolean }) {
-  const year = actor.dob ? new Date(actor.dob).getFullYear() : null;
+function Chip({ icon, children }: { icon?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div className={compact ? "p-5" : "py-8"}>
-      <div className="flex items-start gap-4">
-        <div
-          className="h-20 w-20 shrink-0 overflow-hidden rounded-2xl"
-          style={{ background: portraitGradient(actor.fullName) }}
-        >
-          <span className="flex h-full w-full items-center justify-center font-display text-2xl font-bold text-white/90">
-            {initials(actor.fullName)}
-          </span>
-        </div>
-        <div>
-          <p className="text-[11px] uppercase tracking-[0.3em] text-sky">{actor.nationality}</p>
-          <h3 className="mt-1 font-display text-xl font-bold leading-tight">{actor.fullName}</h3>
-          {actor.tagline && <p className="mt-1 text-sm text-muted-foreground">{actor.tagline}</p>}
-        </div>
-      </div>
-
-      <dl className="mt-5 grid grid-cols-2 gap-3 text-sm">
-        {year && <Meta label="Born">{year}</Meta>}
-        <Meta label="Languages">{actor.languages.join(", ")}</Meta>
-      </dl>
-
-      <Section title="Biography">{actor.bio || "-"}</Section>
-      <Section title="Genres">
-        <div className="flex flex-wrap gap-1.5">
-          {actor.genres.map((g) => (
-            <span key={g} className="rounded-full bg-sky-soft px-3 py-1 text-xs font-medium text-ink">
-              {g}
-            </span>
-          ))}
-        </div>
-      </Section>
-      {actor.filmography && (
-        <Section title="Filmography">
-          <pre className="whitespace-pre-wrap font-sans text-sm text-muted-foreground">{actor.filmography}</pre>
-        </Section>
-      )}
-      {actor.journey && (
-        <Section title="Urugendo / Journey">
-          <p className="whitespace-pre-wrap text-sm text-muted-foreground">{actor.journey}</p>
-        </Section>
-      )}
-      <div className="mt-6 flex gap-3">
-        {actor.instagram && (
-          <a
-            href={actor.instagram.startsWith("http") ? actor.instagram : `https://instagram.com/${actor.instagram.replace(/[@\s]/g, "")}`}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium hover:bg-muted"
-          >
-            <Instagram className="h-4 w-4" /> Instagram
-          </a>
-        )}
-        {actor.linkedin && actor.linkedin.startsWith("http") && (
-          <a
-            href={actor.linkedin}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium hover:bg-muted"
-          >
-            <Linkedin className="h-4 w-4" /> LinkedIn
-          </a>
-        )}
-      </div>
-    </div>
+    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border bg-card px-3 py-1.5 text-[12px] font-medium text-ink">
+      {icon}
+      {children}
+    </span>
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function SheetSection({
+  title,
+  icon,
+  children,
+}: {
+  title: string;
+  icon?: React.ReactNode;
+  children: React.ReactNode;
+}) {
   return (
-    <div className="mt-6">
-      <h4 className="text-[11px] font-semibold uppercase tracking-[0.25em] text-sky">{title}</h4>
+    <div className="mt-6 px-5">
+      <h4 className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.25em] text-sky">
+        {icon}
+        {title}
+      </h4>
       <div className="mt-2 text-foreground">{children}</div>
-    </div>
-  );
-}
-
-function Meta({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="rounded-xl border bg-muted/40 p-3">
-      <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{label}</dt>
-      <dd className="mt-1 text-sm font-medium text-foreground">{children}</dd>
     </div>
   );
 }

@@ -1,25 +1,29 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import { FloatingNav } from "@/components/FloatingNav";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { ProfileBody } from "@/components/MobileReels";
-import { actors, getActor, initials, portraitGradient } from "@/data/actors";
+import { Footer } from "@/components/Footer";
+import { initials, portraitGradient } from "@/data/actors";
+import { actorQueryOptions, actorsQueryOptions } from "@/lib/actors-query";
 
 export const Route = createFileRoute("/actors/$id")({
-  loader: ({ params }) => {
-    const actor = getActor(params.id);
+  loader: async ({ params, context }) => {
+    const actor = await context.queryClient.ensureQueryData(actorQueryOptions(params.id));
     if (!actor) throw notFound();
+    await context.queryClient.ensureQueryData(actorsQueryOptions);
     return { actor };
   },
   head: ({ loaderData }) => ({
     meta: loaderData
       ? [
-          { title: `${loaderData.actor.fullName} — CyaneHub` },
+          { title: `${loaderData.actor.fullName} | CyaneHub` },
           {
             name: "description",
             content: loaderData.actor.tagline || loaderData.actor.bio || "Actor on CyaneHub.",
           },
-          { property: "og:title", content: `${loaderData.actor.fullName} — CyaneHub` },
+          { property: "og:title", content: `${loaderData.actor.fullName} | CyaneHub` },
           { property: "og:description", content: loaderData.actor.tagline || loaderData.actor.bio || "" },
           { property: "og:type", content: "profile" },
           { property: "og:url", content: `/actors/${loaderData.actor.id}` },
@@ -32,7 +36,7 @@ export const Route = createFileRoute("/actors/$id")({
       <div className="text-center">
         <h1 className="font-display text-3xl font-bold">Actor not found</h1>
         <Link to="/actors" className="mt-4 inline-block text-sky hover:underline">
-          ← Back to actors
+          Back to actors
         </Link>
       </div>
     </div>
@@ -46,13 +50,16 @@ export const Route = createFileRoute("/actors/$id")({
 });
 
 function ActorProfile() {
-  const { actor } = Route.useLoaderData();
-  const related = actors.filter((a) => a.id !== actor.id).slice(0, 4);
+  const { id } = Route.useParams();
+  const { data: actor } = useSuspenseQuery(actorQueryOptions(id));
+  const { data: allActors } = useSuspenseQuery(actorsQueryOptions);
+  if (!actor) return null;
+  const related = allActors.filter((a) => a.id !== actor.id).slice(0, 4);
 
   return (
     <>
       <FloatingNav />
-      <main className="pb-32">
+      <main className="pb-16">
         {/* Hero */}
         <section
           className="relative overflow-hidden"
@@ -82,7 +89,7 @@ function ActorProfile() {
                   <p className="mt-4 max-w-2xl text-lg text-white/90">{actor.tagline}</p>
                 )}
                 <div className="mt-5 flex flex-wrap gap-2">
-                  {actor.genres.map((g: string) => (
+                  {actor.genres.map((g) => (
                     <span key={g} className="rounded-full bg-white/15 px-3 py-1 text-xs backdrop-blur">
                       {g}
                     </span>
@@ -128,6 +135,7 @@ function ActorProfile() {
           </section>
         )}
       </main>
+      <Footer />
       <MobileBottomNav />
     </>
   );

@@ -1,26 +1,35 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Search } from "lucide-react";
 import { FloatingNav } from "@/components/FloatingNav";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { ActorCard } from "@/components/ActorCard";
-import { actors } from "@/data/actors";
+import { Footer } from "@/components/Footer";
+import { actorsQueryOptions } from "@/lib/actors-query";
 
 export const Route = createFileRoute("/actors")({
+  loader: ({ context }) => context.queryClient.ensureQueryData(actorsQueryOptions),
   head: () => ({
     meta: [
-      { title: "Actors — CyaneHub" },
+      { title: "Actors | CyaneHub" },
       { name: "description", content: "Browse Rwandan acting talent on CyaneHub. Filter by genre, language and nationality." },
-      { property: "og:title", content: "Actors — CyaneHub" },
+      { property: "og:title", content: "Actors | CyaneHub" },
       { property: "og:description", content: "Browse Rwandan acting talent on CyaneHub." },
       { property: "og:url", content: "/actors" },
     ],
     links: [{ rel: "canonical", href: "/actors" }],
   }),
+  errorComponent: ({ error }) => (
+    <div className="flex min-h-screen items-center justify-center px-4 text-center">
+      <p className="text-sm text-muted-foreground">Couldn't load actors: {error.message}</p>
+    </div>
+  ),
   component: ActorsPage,
 });
 
 function ActorsPage() {
+  const { data: actors } = useSuspenseQuery(actorsQueryOptions);
   const [q, setQ] = useState("");
   const [genre, setGenre] = useState<string>("All");
 
@@ -28,7 +37,7 @@ function ActorsPage() {
     const s = new Set<string>();
     actors.forEach((a) => a.genres.forEach((g) => s.add(g)));
     return ["All", ...Array.from(s).sort()];
-  }, []);
+  }, [actors]);
 
   const filtered = useMemo(() => {
     const term = q.trim().toLowerCase();
@@ -37,23 +46,23 @@ function ActorsPage() {
       if (!term) return true;
       return (
         a.fullName.toLowerCase().includes(term) ||
-        a.nationality.toLowerCase().includes(term) ||
+        (a.nationality ?? "").toLowerCase().includes(term) ||
         a.languages.some((l) => l.toLowerCase().includes(term)) ||
         a.genres.some((g) => g.toLowerCase().includes(term))
       );
     });
-  }, [q, genre]);
+  }, [actors, q, genre]);
 
   return (
     <>
       <FloatingNav />
-      <main className="pt-24 md:pt-32 pb-32">
+      <main className="pt-24 md:pt-32 pb-16">
         <div className="mx-auto max-w-6xl px-4 md:px-6">
           <header className="mb-8">
             <p className="text-xs uppercase tracking-[0.3em] text-sky">CyaneHub Roster</p>
             <h1 className="mt-2 font-display text-4xl font-bold text-ink md:text-5xl">Discover Actors</h1>
             <p className="mt-2 max-w-2xl text-muted-foreground">
-              Rwandan talent ready for casting — from emerging voices to established names.
+              Rwandan talent ready for casting, from emerging voices to established names.
             </p>
           </header>
 
@@ -101,6 +110,7 @@ function ActorsPage() {
           )}
         </div>
       </main>
+      <Footer />
       <MobileBottomNav />
     </>
   );

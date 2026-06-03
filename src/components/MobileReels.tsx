@@ -359,6 +359,12 @@ function BottomSheet({ actor, onClose }: { actor: Actor | null; onClose: () => v
                       <Linkedin className="h-4 w-4" /> LinkedIn
                     </a>
                   )}
+                  <ShareButton
+                    title={`${actor.fullName} | CyaneHub`}
+                    text={actor.tagline ?? undefined}
+                    path={`/actors/${actor.id}`}
+                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium hover:bg-muted"
+                  />
                 </div>
               </div>
 

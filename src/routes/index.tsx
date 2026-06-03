@@ -61,49 +61,68 @@ function Home() {
 
 function Hero({ count }: { count: number }) {
   return (
-    <section className="relative overflow-hidden pt-32 pb-24" style={{ background: "var(--gradient-cinema)" }}>
-      <div className="absolute inset-0 imigongo-bg opacity-50" />
-      <div className="absolute -top-40 right-[-10%] h-[480px] w-[480px] rounded-full bg-sky/30 blur-3xl" />
-      <div className="relative mx-auto max-w-6xl px-6">
-        <span className="inline-flex items-center gap-2 rounded-full border bg-white/70 px-3 py-1 text-xs font-medium uppercase tracking-[0.2em] text-ink backdrop-blur">
-          <Star className="h-3 w-3 text-sky" /> Rwanda · Casting & Talent
-        </span>
-        <h1 className="mt-6 max-w-4xl text-balance font-display text-5xl font-bold leading-[1.05] tracking-tight text-ink md:text-7xl">
+    <section className="relative overflow-hidden pt-28 pb-24" style={{ background: "var(--gradient-cinema)" }}>
+      <div className="absolute inset-0 imigongo-bg opacity-40" />
+
+      <SideCluster className="pointer-events-none absolute bottom-0 left-0 hidden h-[420px] w-[280px] text-ink lg:block" />
+      <SideCluster className="pointer-events-none absolute bottom-0 right-0 hidden h-[420px] w-[280px] -scale-x-100 text-ink lg:block" />
+
+      <div className="relative mx-auto max-w-5xl px-6 text-center">
+        <div className="mx-auto inline-flex items-center gap-2 rounded-full border bg-white/80 px-4 py-2 text-sm font-medium text-ink backdrop-blur">
+          <span className="flex h-5 w-5 items-center justify-center rounded-sm bg-ink text-sky">
+            <Film className="h-3 w-3" />
+          </span>
+          Rwanda Casting & Talent Agency
+        </div>
+
+        <h1 className="mx-auto mt-8 max-w-4xl text-balance font-display text-5xl font-bold leading-[1.02] tracking-tight text-ink md:text-7xl lg:text-[5.25rem]">
           Where Rwandan actors meet the <span className="text-sky">world's stages</span>.
         </h1>
-        <p className="mt-6 max-w-2xl text-lg text-muted-foreground">
+
+        <p className="mx-auto mt-8 max-w-2xl text-base text-muted-foreground md:text-lg">
           CyaneHub is the casting and branding home for Rwanda's screen talent. We help actors build
           professional brands, access opportunities, and connect with filmmakers locally and internationally.
         </p>
-        <div className="mt-8 flex flex-wrap gap-3">
+
+        <div className="mt-10 flex flex-col items-center gap-4">
           <Link
             to="/actors"
-            className="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3.5 text-sm font-semibold text-white shadow-[var(--shadow-elevate)] transition-transform hover:scale-[1.02]"
+            className="inline-flex items-center gap-2 rounded-md bg-ink px-8 py-4 text-sm font-bold uppercase tracking-wider text-white shadow-[var(--shadow-elevate)] transition-transform hover:scale-[1.02]"
           >
             Discover Actors <ArrowRight className="h-4 w-4" />
           </Link>
-          <Link
-            to="/about"
-            className="inline-flex items-center gap-2 rounded-full border bg-white px-6 py-3.5 text-sm font-semibold text-ink hover:bg-muted"
-          >
-            Join CyaneHub
-          </Link>
+          <div className="inline-flex items-center gap-2 text-sm font-medium text-ink">
+            <span className="h-3 w-3 rounded-sm bg-sky" />
+            Accepting new talent · {count}+ featured actors
+          </div>
         </div>
-
-        <dl className="mt-14 grid max-w-2xl grid-cols-3 gap-6">
-          {[
-            [`${count}+`, "Featured Actors"],
-            ["20+", "Productions"],
-            ["4", "Languages"],
-          ].map(([n, l]) => (
-            <div key={l}>
-              <dt className="font-display text-4xl font-bold text-ink">{n}</dt>
-              <dd className="mt-1 text-xs uppercase tracking-[0.2em] text-muted-foreground">{l}</dd>
-            </div>
-          ))}
-        </dl>
       </div>
     </section>
+  );
+}
+
+function SideCluster({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 280 420" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} aria-hidden="true">
+      <g stroke="currentColor" strokeWidth="3" strokeLinecap="square" fill="none">
+        <circle cx="70" cy="340" r="46" />
+        <circle cx="70" cy="340" r="14" fill="currentColor" />
+        <circle cx="70" cy="294" r="6" />
+        <circle cx="70" cy="386" r="6" />
+        <circle cx="24" cy="340" r="6" />
+        <circle cx="116" cy="340" r="6" />
+        <rect x="130" y="280" width="120" height="90" rx="3" />
+        <path d="M130 308 L250 308" />
+        <path d="M142 280 L162 308 M178 280 L198 308 M214 280 L234 308" />
+        <rect x="40" y="186" width="130" height="90" rx="3" />
+        <path d="M70 276 L70 296 M140 276 L140 296 M55 296 L155 296" />
+        <path d="M210 200 L218 220 L240 222 L223 236 L228 258 L210 246 L192 258 L197 236 L180 222 L202 220 Z" fill="var(--sky)" />
+        <path d="M28 128 L42 142 M42 128 L28 142" />
+        <path d="M250 138 L264 152 M264 138 L250 152" />
+        <rect x="100" y="118" width="44" height="44" rx="2" fill="var(--sky)" fillOpacity="0.45" />
+        <rect x="170" y="150" width="22" height="22" rx="2" />
+      </g>
+    </svg>
   );
 }
 

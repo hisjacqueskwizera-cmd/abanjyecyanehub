@@ -94,6 +94,7 @@ export const upsertActor = createServerFn({ method: "POST" })
       featured: data.featured,
       sort_order: data.sort_order,
       profile_photo: cleanNullable(data.profile_photo ?? null),
+      gallery: data.gallery ?? [],
     };
     if (data.id) {
       const { data: row, error } = await supabaseAdmin

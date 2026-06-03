@@ -9,7 +9,7 @@ import { ActorCard } from "@/components/ActorCard";
 import { Footer } from "@/components/Footer";
 import { actorsQueryOptions } from "@/lib/actors-query";
 
-export const Route = createFileRoute("/actors")({
+export const Route = createFileRoute("/actors/")({
   loader: ({ context }) => context.queryClient.ensureQueryData(actorsQueryOptions),
   head: () => ({
     meta: [

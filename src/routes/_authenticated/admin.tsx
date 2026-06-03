@@ -661,3 +661,142 @@ function Field({
     </label>
   );
 }
+
+function GalleryUploader({
+  slug,
+  value,
+  onChange,
+}: {
+  slug: string;
+  value: string[];
+  onChange: (next: string[]) => void;
+}) {
+  const [busy, setBusy] = useState(false);
+
+  const handleFiles = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    setBusy(true);
+    try {
+      const uploaded: string[] = [];
+      for (const file of Array.from(files)) {
+        if (!file.type.startsWith("image/")) continue;
+        if (file.size > 8 * 1024 * 1024) {
+          toast.error(`${file.name} is larger than 8MB`);
+          continue;
+        }
+        const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+        const safeSlug = (slug || "untitled").replace(/[^a-z0-9-]/gi, "-");
+        const path = `${safeSlug}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+        const { error } = await supabase.storage
+          .from("actor-photos")
+          .upload(path, file, { upsert: false, contentType: file.type });
+        if (error) {
+          toast.error(`Upload failed: ${error.message}`);
+          continue;
+        }
+        const { data } = supabase.storage.from("actor-photos").getPublicUrl(path);
+        uploaded.push(data.publicUrl);
+      }
+      if (uploaded.length) {
+        onChange([...value, ...uploaded]);
+        toast.success(`Uploaded ${uploaded.length} photo${uploaded.length > 1 ? "s" : ""}`);
+      }
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const remove = (idx: number) => onChange(value.filter((_, i) => i !== idx));
+  const move = (idx: number, dir: -1 | 1) => {
+    const j = idx + dir;
+    if (j < 0 || j >= value.length) return;
+    const next = [...value];
+    [next[idx], next[j]] = [next[j], next[idx]];
+    onChange(next);
+  };
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Profile photos
+        </span>
+        <span className="text-[11px] text-muted-foreground">
+          First photo is the cover. Drag order with the arrows.
+        </span>
+      </div>
+
+      {value.length > 0 && (
+        <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+          {value.map((url, i) => (
+            <li
+              key={`${url}-${i}`}
+              className="group relative aspect-square overflow-hidden rounded-xl border bg-muted"
+            >
+              <img src={url} alt={`Photo ${i + 1}`} className="h-full w-full object-cover" />
+              {i === 0 && (
+                <span className="absolute left-1.5 top-1.5 rounded-full bg-sky px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-ink">
+                  Cover
+                </span>
+              )}
+              <div className="absolute inset-x-1 bottom-1 flex items-center justify-between gap-1 opacity-0 transition group-hover:opacity-100">
+                <div className="flex gap-1">
+                  <button
+                    type="button"
+                    onClick={() => move(i, -1)}
+                    disabled={i === 0}
+                    className="rounded-full bg-black/70 p-1 text-white disabled:opacity-30"
+                    aria-label="Move left"
+                  >
+                    <ArrowUp className="h-3 w-3 -rotate-90" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => move(i, 1)}
+                    disabled={i === value.length - 1}
+                    className="rounded-full bg-black/70 p-1 text-white disabled:opacity-30"
+                    aria-label="Move right"
+                  >
+                    <ArrowDown className="h-3 w-3 -rotate-90" />
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => remove(i)}
+                  className="rounded-full bg-destructive p-1 text-white"
+                  aria-label="Remove"
+                >
+                  <Trash2 className="h-3 w-3" />
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <label
+        className={`flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-2xl border-2 border-dashed bg-muted/30 px-4 py-6 text-center transition hover:bg-muted/50 ${
+          busy ? "pointer-events-none opacity-60" : ""
+        }`}
+      >
+        <ImagePlus className="h-5 w-5 text-sky" />
+        <span className="text-sm font-semibold text-ink">
+          {busy ? "Uploading..." : "Upload photos"}
+        </span>
+        <span className="text-[11px] text-muted-foreground">
+          JPG / PNG / WebP up to 8MB · select multiple
+        </span>
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          className="sr-only"
+          onChange={(e) => {
+            handleFiles(e.target.files);
+            e.target.value = "";
+          }}
+        />
+      </label>
+    </div>
+  );
+}

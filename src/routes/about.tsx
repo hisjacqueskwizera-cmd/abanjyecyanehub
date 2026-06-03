@@ -24,17 +24,22 @@ function AboutPage() {
     <>
       <FloatingNav />
       <MobileTopBar />
-      <main className="pt-20 pb-24 md:pt-32">
+      <main className="pt-16 pb-28 md:pt-32">
+        {/* Mobile app-style header */}
+        <header className="md:hidden px-4 pt-2 pb-2">
+          <p className="text-[10px] uppercase tracking-[0.3em] text-sky">CyaneHub</p>
+          <h1 className="mt-1 font-display text-3xl font-bold text-ink">About</h1>
+        </header>
 
-        {/* Hero */}
+        {/* Hero (desktop emphasized) */}
         <section className="relative overflow-hidden">
           <div className="absolute inset-0 imigongo-bg opacity-40" />
-          <div className="relative mx-auto max-w-4xl px-6 py-16 text-center">
-            <p className="text-xs uppercase tracking-[0.3em] text-sky">About CyaneHub</p>
-            <h1 className="mt-3 font-display text-5xl font-bold leading-tight text-ink md:text-6xl">
+          <div className="relative mx-auto max-w-4xl px-6 py-10 text-center md:py-16">
+            <p className="hidden md:block text-xs uppercase tracking-[0.3em] text-sky">About CyaneHub</p>
+            <h2 className="mt-3 font-display text-3xl font-bold leading-tight text-ink md:text-6xl">
               The bridge between Rwandan actors and the world.
-            </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
+            </h2>
+            <p className="mx-auto mt-5 max-w-2xl text-base md:text-lg text-muted-foreground">
               We exist to put Rwandan talent on every stage that matters, from local productions to
               international screens. CyaneHub builds professional brands, opens doors to casting,
               and supports actors through their entire creative journey.

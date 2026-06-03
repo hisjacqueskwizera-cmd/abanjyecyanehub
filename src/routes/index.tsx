@@ -1,31 +1,41 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { FloatingNav } from "@/components/FloatingNav";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { ActorCard } from "@/components/ActorCard";
 import { MobileReels } from "@/components/MobileReels";
-import { actors } from "@/data/actors";
+import { Footer } from "@/components/Footer";
+import { actorsQueryOptions } from "@/lib/actors-query";
+import type { Actor } from "@/data/actors";
 import { ArrowRight, Film, Users, Sparkles, Globe2, Network, Star } from "lucide-react";
 
 export const Route = createFileRoute("/")({
+  loader: ({ context }) => context.queryClient.ensureQueryData(actorsQueryOptions),
   head: () => ({
     meta: [
-      { title: "CyaneHub — Rwanda's Actor Branding & Casting Platform" },
+      { title: "CyaneHub | Rwanda's Actor Branding & Casting Platform" },
       {
         name: "description",
         content:
           "CyaneHub connects Rwandan actors with casting opportunities, filmmakers and producers. Discover talent, build careers, tell stories.",
       },
-      { property: "og:title", content: "CyaneHub — Rwanda's Actor Branding & Casting Platform" },
+      { property: "og:title", content: "CyaneHub | Rwanda's Actor Branding & Casting Platform" },
       { property: "og:description", content: "Discover Rwandan acting talent and connect with film opportunities." },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "/" },
     ],
     links: [{ rel: "canonical", href: "/" }],
   }),
+  errorComponent: ({ error }) => (
+    <div className="flex min-h-screen items-center justify-center px-4 text-center">
+      <p className="text-sm text-muted-foreground">Couldn't load CyaneHub: {error.message}</p>
+    </div>
+  ),
   component: Home,
 });
 
 function Home() {
+  const { data: actors } = useSuspenseQuery(actorsQueryOptions);
   const featured = actors.filter((a) => a.featured).slice(0, 6);
 
   return (
@@ -36,7 +46,7 @@ function Home() {
       {/* Desktop landing */}
       <div className="hidden md:block">
         <FloatingNav />
-        <Hero />
+        <Hero count={actors.length} />
         <FeaturedActors actors={featured} />
         <WhyCyaneHub />
         <HowItWorks />
@@ -49,7 +59,7 @@ function Home() {
   );
 }
 
-function Hero() {
+function Hero({ count }: { count: number }) {
   return (
     <section className="relative overflow-hidden pt-32 pb-24" style={{ background: "var(--gradient-cinema)" }}>
       <div className="absolute inset-0 imigongo-bg opacity-50" />
@@ -63,7 +73,7 @@ function Hero() {
         </h1>
         <p className="mt-6 max-w-2xl text-lg text-muted-foreground">
           CyaneHub is the casting and branding home for Rwanda's screen talent. We help actors build
-          professional brands, access opportunities, and connect with filmmakers — locally and internationally.
+          professional brands, access opportunities, and connect with filmmakers locally and internationally.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Link
@@ -82,7 +92,7 @@ function Hero() {
 
         <dl className="mt-14 grid max-w-2xl grid-cols-3 gap-6">
           {[
-            ["12+", "Featured Actors"],
+            [`${count}+`, "Featured Actors"],
             ["20+", "Productions"],
             ["4", "Languages"],
           ].map(([n, l]) => (
@@ -97,7 +107,7 @@ function Hero() {
   );
 }
 
-function FeaturedActors({ actors }: { actors: typeof import("@/data/actors").actors }) {
+function FeaturedActors({ actors }: { actors: Actor[] }) {
   return (
     <section className="mx-auto max-w-6xl px-6 py-24">
       <div className="flex items-end justify-between gap-4">
@@ -106,7 +116,7 @@ function FeaturedActors({ actors }: { actors: typeof import("@/data/actors").act
           <h2 className="mt-2 font-display text-4xl font-bold text-ink">Faces shaping Rwandan cinema</h2>
         </div>
         <Link to="/actors" className="hidden text-sm font-medium text-sky hover:underline md:inline">
-          See all actors →
+          See all actors
         </Link>
       </div>
       <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -125,7 +135,7 @@ function WhyCyaneHub() {
     { Icon: Users, title: "Film Production Support", body: "Short film initiatives that put our actors on real sets." },
     { Icon: Globe2, title: "Visibility", body: "Curated discovery surface for talent agents and international casting." },
     { Icon: Network, title: "Industry Network", body: "A growing community of directors, producers and creatives." },
-    { Icon: Star, title: "Career Growth", body: "From first audition to international stage — we move with you." },
+    { Icon: Star, title: "Career Growth", body: "From first audition to international stage. We move with you." },
   ];
   return (
     <section className="bg-sky-soft/40 py-24">
@@ -200,7 +210,7 @@ function Testimonials() {
     },
     {
       quote:
-        "From local TV series to international ambitions — CyaneHub moves with my career, not against it.",
+        "From local TV series to international ambitions, CyaneHub moves with my career, not against it.",
       name: "MUHOZA Jean Tresor",
       role: "Actor, Seburikoko · Papa Sava",
     },
@@ -255,19 +265,5 @@ function CTASection() {
         </div>
       </div>
     </section>
-  );
-}
-
-function Footer() {
-  return (
-    <footer className="border-t bg-background py-10">
-      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 md:flex-row">
-        <p className="text-sm text-muted-foreground">© {new Date().getFullYear()} CyaneHub. Made in Rwanda.</p>
-        <nav className="flex gap-6 text-sm text-muted-foreground">
-          <Link to="/actors" className="hover:text-ink">Actors</Link>
-          <Link to="/about" className="hover:text-ink">About</Link>
-        </nav>
-      </div>
-    </footer>
   );
 }

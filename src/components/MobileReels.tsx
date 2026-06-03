@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { ChevronUp, Instagram, Linkedin, X } from "lucide-react";
-import { actors, initials, portraitGradient, type Actor } from "@/data/actors";
+import { actorsQueryOptions } from "@/lib/actors-query";
+import { initials, portraitGradient, type Actor } from "@/data/actors";
 
 export function MobileReels() {
+  const { data: actors } = useSuspenseQuery(actorsQueryOptions);
   const [openId, setOpenId] = useState<string | null>(null);
   const open = actors.find((a) => a.id === openId) ?? null;
 
@@ -118,7 +121,7 @@ export function ProfileBody({ actor, compact = false }: { actor: Actor; compact?
         <Meta label="Languages">{actor.languages.join(", ")}</Meta>
       </dl>
 
-      <Section title="Biography">{actor.bio || "—"}</Section>
+      <Section title="Biography">{actor.bio || "-"}</Section>
       <Section title="Genres">
         <div className="flex flex-wrap gap-1.5">
           {actor.genres.map((g) => (
@@ -134,7 +137,7 @@ export function ProfileBody({ actor, compact = false }: { actor: Actor; compact?
         </Section>
       )}
       {actor.journey && (
-        <Section title="Urugendo — Journey">
+        <Section title="Urugendo / Journey">
           <p className="whitespace-pre-wrap text-sm text-muted-foreground">{actor.journey}</p>
         </Section>
       )}

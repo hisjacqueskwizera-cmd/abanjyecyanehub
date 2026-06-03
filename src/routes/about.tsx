@@ -2,13 +2,14 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Mail, MapPin, Phone, Target, Eye, Heart } from "lucide-react";
 import { FloatingNav } from "@/components/FloatingNav";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { Footer } from "@/components/Footer";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "About — CyaneHub" },
-      { name: "description", content: "CyaneHub is Rwanda's bridge between actors and opportunity — branding, casting and film production support." },
-      { property: "og:title", content: "About — CyaneHub" },
+      { title: "About | CyaneHub" },
+      { name: "description", content: "CyaneHub is Rwanda's bridge between actors and opportunity. Branding, casting and film production support." },
+      { property: "og:title", content: "About | CyaneHub" },
       { property: "og:description", content: "Rwanda's bridge between actors and opportunity." },
       { property: "og:url", content: "/about" },
     ],
@@ -21,7 +22,7 @@ function AboutPage() {
   return (
     <>
       <FloatingNav />
-      <main className="pt-24 pb-32 md:pt-32">
+      <main className="pt-24 pb-16 md:pt-32">
         {/* Hero */}
         <section className="relative overflow-hidden">
           <div className="absolute inset-0 imigongo-bg opacity-40" />
@@ -31,7 +32,7 @@ function AboutPage() {
               The bridge between Rwandan actors and the world.
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
-              We exist to put Rwandan talent on every stage that matters — from local productions to
+              We exist to put Rwandan talent on every stage that matters, from local productions to
               international screens. CyaneHub builds professional brands, opens doors to casting,
               and supports actors through their entire creative journey.
             </p>
@@ -49,7 +50,7 @@ function AboutPage() {
               Producers couldn't find the faces they needed. Careers stalled before they began.
             </p>
             <p>
-              We built CyaneHub to fix that — a curated, professional platform where every actor gets a
+              We built CyaneHub to fix that: a curated, professional platform where every actor gets a
               real brand, a real portfolio, and a real shot at being cast. We collaborate with filmmakers,
               support short film productions, and quietly champion the rise of Rwandan cinema on the world stage.
             </p>
@@ -96,7 +97,7 @@ function AboutPage() {
                 <p className="text-xs uppercase tracking-[0.3em] text-sky">Contact</p>
                 <h2 className="mt-2 font-display text-4xl font-bold">Let's build your story.</h2>
                 <p className="mt-3 max-w-md text-white/80">
-                  Actors, producers, partners — get in touch. We answer fast.
+                  Actors, producers, partners. Get in touch. We answer fast.
                 </p>
               </div>
               <ul className="space-y-4 text-sm">
@@ -123,6 +124,7 @@ function AboutPage() {
           </div>
         </section>
       </main>
+      <Footer />
       <MobileBottomNav />
     </>
   );

@@ -13,6 +13,10 @@ import {
   ExternalLink,
   Save,
   X,
+  ImagePlus,
+  GripVertical,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {

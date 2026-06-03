@@ -79,14 +79,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "ABANJYE CYANE HUB - FILM TALENTS" },
+      { name: "description", content: "CyaneHub Talent Connect is a mobile-first platform for Rwandan actors to build brands and find casting opportunities." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "ABANJYE CYANE HUB - FILM TALENTS" },
+      { property: "og:description", content: "CyaneHub Talent Connect is a mobile-first platform for Rwandan actors to build brands and find casting opportunities." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "ABANJYE CYANE HUB - FILM TALENTS" },
+      { name: "twitter:description", content: "CyaneHub Talent Connect is a mobile-first platform for Rwandan actors to build brands and find casting opportunities." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/db52483e-0eef-49bc-976d-3a7cb12e9ca0/id-preview-f597a001--8636ee87-1327-4387-83db-577b74f90ea7.lovable.app-1780491235087.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/db52483e-0eef-49bc-976d-3a7cb12e9ca0/id-preview-f597a001--8636ee87-1327-4387-83db-577b74f90ea7.lovable.app-1780491235087.png" },
     ],
     links: [
       {

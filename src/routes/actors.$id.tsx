@@ -455,6 +455,10 @@ function RelatedCard({ actor }: { actor: Actor }) {
             src={actor.profilePhoto}
             alt={actor.fullName}
             loading="lazy"
+            decoding="async"
+            width={300}
+            height={400}
+            sizes="(min-width: 768px) 23vw, 45vw"
             className="absolute inset-0 h-full w-full object-cover"
           />
         ) : (

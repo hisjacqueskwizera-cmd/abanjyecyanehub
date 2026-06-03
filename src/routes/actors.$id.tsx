@@ -1,5 +1,6 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
+
 import {
   ArrowLeft,
   Award,
@@ -67,6 +68,7 @@ export const Route = createFileRoute("/actors/$id")({
 
 function ActorProfile() {
   const { id } = Route.useParams();
+  const router = useRouter();
   const { data: actor } = useSuspenseQuery(actorQueryOptions(id));
   const { data: allActors } = useSuspenseQuery(actorsQueryOptions);
   if (!actor) return null;
@@ -78,19 +80,29 @@ function ActorProfile() {
   const reels = films.filter((f) => f.url && toYouTubeEmbed(f.url));
   const externalLinks = films.filter((f) => f.url && !toYouTubeEmbed(f.url));
 
+  const goBack = () => {
+    // Prefer browser history so we return to /actors OR /search depending on where the user came from.
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.history.back();
+    } else {
+      router.navigate({ to: "/actors" });
+    }
+  };
+
   return (
     <>
       <FloatingNav />
       <MobileTopBar variant="dark" />
       {/* Mobile sticky back bar */}
       <div className="fixed left-3 top-3 z-40 md:hidden">
-        <Link
-          to="/actors"
-          aria-label="Back to actors"
+        <button
+          type="button"
+          onClick={goBack}
+          aria-label="Go back"
           className="inline-flex items-center gap-1.5 rounded-full bg-black/55 px-3 py-2 text-xs font-semibold text-white shadow-lg backdrop-blur-md ring-1 ring-white/15 active:scale-95 transition"
         >
           <ArrowLeft className="h-4 w-4" /> Back
-        </Link>
+        </button>
       </div>
       <main className="pb-24">
         {/* HERO */}
@@ -101,12 +113,14 @@ function ActorProfile() {
           <div className="absolute inset-0 imigongo-bg opacity-25 mix-blend-overlay" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-background" />
           <div className="relative mx-auto max-w-6xl px-4 pt-24 md:pt-32 md:px-6">
-            <Link
-              to="/actors"
+            <button
+              type="button"
+              onClick={goBack}
               className="hidden md:inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-[11px] uppercase tracking-[0.2em] text-white backdrop-blur hover:bg-white/25"
             >
-              <ArrowLeft className="h-3 w-3" /> All actors
-            </Link>
+              <ArrowLeft className="h-3 w-3" /> Back
+            </button>
+
 
             <div className="mt-8 grid items-end gap-8 md:mt-10 md:grid-cols-[minmax(0,1fr)_2fr]">
               <div className="relative mx-auto aspect-[3/4] w-full max-w-[280px] overflow-hidden rounded-3xl ring-4 ring-white/30 shadow-[var(--shadow-elevate)] md:mx-0 md:max-w-none">

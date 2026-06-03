@@ -68,12 +68,8 @@ function Hero({ count }: { count: number }) {
       <SideCluster className="pointer-events-none absolute bottom-0 right-0 hidden h-[420px] w-[280px] -scale-x-100 text-ink lg:block" />
 
       <div className="relative mx-auto max-w-5xl px-6 text-center">
-        <div className="mx-auto inline-flex items-center gap-2 rounded-full border bg-white/80 px-4 py-2 text-sm font-medium text-ink backdrop-blur">
-          <span className="flex h-5 w-5 items-center justify-center rounded-sm bg-ink text-sky">
-            <Film className="h-3 w-3" />
-          </span>
-          Rwanda Casting & Talent Agency
-        </div>
+
+
 
         <h1 className="mx-auto mt-8 max-w-4xl text-balance font-display text-5xl font-bold leading-[1.02] tracking-tight text-ink md:text-7xl lg:text-[5.25rem]">
           Where Rwandan actors meet the <span className="text-sky">world's stages</span>.

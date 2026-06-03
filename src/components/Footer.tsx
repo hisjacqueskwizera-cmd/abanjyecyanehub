@@ -82,25 +82,6 @@ export function Footer() {
           ))}
         </div>
 
-        {/* Partners strip */}
-        <div className="mt-16 grid grid-cols-2 items-center gap-6 border-t border-border pt-10 sm:grid-cols-4">
-          {[
-            { name: "Rwanda Film Office", sub: "Official partner" },
-            { name: "Kigali Cinema", sub: "Production ally" },
-            { name: "Imbuto Studios", sub: "Casting network" },
-            { name: "L*Cyane Lab", sub: "Talent academy" },
-          ].map((p) => (
-            <div
-              key={p.name}
-              className="rounded-2xl border border-border bg-card px-4 py-3 text-center"
-            >
-              <div className="font-display text-sm font-bold text-ink">{p.name}</div>
-              <div className="mt-0.5 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-                {p.sub}
-              </div>
-            </div>
-          ))}
-        </div>
 
         {/* Bottom bar */}
         <div className="mt-12 flex flex-col items-center justify-between gap-5 border-t border-border pt-6 md:flex-row">

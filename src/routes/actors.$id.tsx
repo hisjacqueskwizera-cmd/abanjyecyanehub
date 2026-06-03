@@ -75,10 +75,23 @@ function ActorProfile() {
   const films = parseFilmography(actor.filmography);
   const journey = parseJourney(actor.journey);
 
+  const reels = films.filter((f) => f.url && toYouTubeEmbed(f.url));
+  const externalLinks = films.filter((f) => f.url && !toYouTubeEmbed(f.url));
+
   return (
     <>
       <FloatingNav />
       <MobileTopBar variant="dark" />
+      {/* Mobile sticky back bar */}
+      <div className="fixed left-3 top-3 z-40 md:hidden">
+        <Link
+          to="/actors"
+          aria-label="Back to actors"
+          className="inline-flex items-center gap-1.5 rounded-full bg-black/55 px-3 py-2 text-xs font-semibold text-white shadow-lg backdrop-blur-md ring-1 ring-white/15 active:scale-95 transition"
+        >
+          <ArrowLeft className="h-4 w-4" /> Back
+        </Link>
+      </div>
       <main className="pb-24">
         {/* HERO */}
         <section
@@ -90,7 +103,7 @@ function ActorProfile() {
           <div className="relative mx-auto max-w-6xl px-4 pt-24 md:pt-32 md:px-6">
             <Link
               to="/actors"
-              className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-[11px] uppercase tracking-[0.2em] text-white backdrop-blur hover:bg-white/25"
+              className="hidden md:inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-[11px] uppercase tracking-[0.2em] text-white backdrop-blur hover:bg-white/25"
             >
               <ArrowLeft className="h-3 w-3" /> All actors
             </Link>

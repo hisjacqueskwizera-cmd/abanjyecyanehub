@@ -19,7 +19,7 @@ export function FloatingNav() {
             <li key={l.to}>
               <Link
                 to={l.to}
-                activeOptions={{ exact: l.to === "/" }}
+                activeOptions={{ exact: false }}
                 activeProps={{ className: "bg-ink text-white" }}
                 inactiveProps={{ className: "text-ink hover:bg-ink/5" }}
                 className="rounded-full px-4 py-1.5 text-sm font-medium transition-colors"

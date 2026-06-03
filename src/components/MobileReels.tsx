@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { ChevronUp, Instagram, Linkedin, X } from "lucide-react";
+import { Eye, Instagram, Linkedin, X } from "lucide-react";
 import { actorsQueryOptions } from "@/lib/actors-query";
 import { initials, portraitGradient, type Actor } from "@/data/actors";
+import { MobileTopBar } from "./MobileTopBar";
 
 export function MobileReels() {
   const { data: actors } = useSuspenseQuery(actorsQueryOptions);
@@ -12,6 +13,7 @@ export function MobileReels() {
 
   return (
     <div className="relative h-[100dvh] w-full overflow-y-scroll snap-y-mandatory no-scrollbar md:hidden">
+      <MobileTopBar variant="dark" />
       {actors.map((a) => (
         <Reel key={a.id} actor={a} onOpen={() => setOpenId(a.id)} />
       ))}

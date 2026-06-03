@@ -14,7 +14,6 @@ import {
   Save,
   X,
   ImagePlus,
-  GripVertical,
   ArrowUp,
   ArrowDown,
 } from "lucide-react";

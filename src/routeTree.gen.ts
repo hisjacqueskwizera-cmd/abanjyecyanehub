@@ -9,11 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SearchRouteImport } from './routes/search'
 import { Route as ActorsRouteImport } from './routes/actors'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ActorsIdRouteImport } from './routes/actors.$id'
 
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ActorsRoute = ActorsRouteImport.update({
   id: '/actors',
   path: '/actors',
@@ -39,12 +45,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/actors': typeof ActorsRouteWithChildren
+  '/search': typeof SearchRoute
   '/actors/$id': typeof ActorsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/actors': typeof ActorsRouteWithChildren
+  '/search': typeof SearchRoute
   '/actors/$id': typeof ActorsIdRoute
 }
 export interface FileRoutesById {
@@ -52,24 +60,33 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/actors': typeof ActorsRouteWithChildren
+  '/search': typeof SearchRoute
   '/actors/$id': typeof ActorsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/actors' | '/actors/$id'
+  fullPaths: '/' | '/about' | '/actors' | '/search' | '/actors/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/actors' | '/actors/$id'
-  id: '__root__' | '/' | '/about' | '/actors' | '/actors/$id'
+  to: '/' | '/about' | '/actors' | '/search' | '/actors/$id'
+  id: '__root__' | '/' | '/about' | '/actors' | '/search' | '/actors/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   ActorsRoute: typeof ActorsRouteWithChildren
+  SearchRoute: typeof SearchRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/actors': {
       id: '/actors'
       path: '/actors'
@@ -116,7 +133,18 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   ActorsRoute: ActorsRouteWithChildren,
+  SearchRoute: SearchRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

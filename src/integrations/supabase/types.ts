@@ -22,6 +22,7 @@ export type Database = {
           featured: boolean
           filmography: string | null
           full_name: string
+          gallery: string[]
           genres: string[]
           id: string
           instagram: string | null
@@ -42,6 +43,7 @@ export type Database = {
           featured?: boolean
           filmography?: string | null
           full_name: string
+          gallery?: string[]
           genres?: string[]
           id?: string
           instagram?: string | null
@@ -62,6 +64,7 @@ export type Database = {
           featured?: boolean
           filmography?: string | null
           full_name?: string
+          gallery?: string[]
           genres?: string[]
           id?: string
           instagram?: string | null

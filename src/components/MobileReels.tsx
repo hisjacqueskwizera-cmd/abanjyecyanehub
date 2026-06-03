@@ -75,17 +75,38 @@ export function MobileReels() {
 }
 
 function Reel({ actor, onOpen }: { actor: Actor; onOpen: () => void }) {
+  const photos = [actor.profilePhoto, ...(actor.gallery ?? [])].filter(
+    (p): p is string => !!p
+  );
+  const hasPhotos = photos.length > 0;
+  const [idx, setIdx] = useState(0);
+
+  const onScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const el = e.currentTarget;
+    const i = Math.round(el.scrollLeft / el.clientWidth);
+    if (i !== idx) setIdx(i);
+  };
+
   return (
     <section
       className="relative flex h-[100dvh] w-full snap-start items-end overflow-hidden"
       style={{ background: portraitGradient(actor.fullName) }}
     >
-      {actor.profilePhoto ? (
-        <img
-          src={actor.profilePhoto}
-          alt={actor.fullName}
-          className="absolute inset-0 h-full w-full object-cover"
-        />
+      {hasPhotos ? (
+        <div
+          onScroll={onScroll}
+          className="absolute inset-0 flex snap-x snap-mandatory overflow-x-auto overflow-y-hidden no-scrollbar"
+        >
+          {photos.map((src, i) => (
+            <div key={i} className="relative h-full w-full shrink-0 snap-center">
+              <img
+                src={src}
+                alt={`${actor.fullName} ${i + 1}`}
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+            </div>
+          ))}
+        </div>
       ) : (
         <>
           <div className="absolute inset-0 imigongo-bg opacity-20 mix-blend-overlay" />
@@ -94,33 +115,44 @@ function Reel({ actor, onOpen }: { actor: Actor; onOpen: () => void }) {
           </span>
         </>
       )}
-      <div className="absolute inset-x-0 bottom-0 top-1/3 bg-gradient-to-t from-black/85 via-black/40 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 top-1/3 bg-gradient-to-t from-black/85 via-black/40 to-transparent" />
 
-      <div className="relative z-10 w-full p-6 pb-32 text-white">
-        <p className="text-xs uppercase tracking-[0.3em] text-sky">CyaneHub Talent</p>
-        <h2 className="mt-2 font-display text-3xl font-bold leading-tight">{actor.fullName}</h2>
-        {actor.tagline && <p className="mt-2 line-clamp-3 text-sm text-white/85">{actor.tagline}</p>}
-        <div className="mt-3 flex flex-wrap gap-1.5">
-          {actor.genres.slice(0, 4).map((g) => (
-            <span key={g} className="rounded-full bg-white/15 px-2.5 py-1 text-[11px] backdrop-blur">
-              {g}
-            </span>
+      {photos.length > 1 && (
+        <div className="pointer-events-none absolute left-0 right-0 top-16 z-10 flex justify-center gap-1.5 px-6">
+          {photos.map((_, i) => (
+            <span
+              key={i}
+              className={`h-1 max-w-12 flex-1 rounded-full transition-all ${
+                i === idx ? "bg-white" : "bg-white/30"
+              }`}
+            />
           ))}
         </div>
-        <div className="mt-3 text-[11px] uppercase tracking-wider text-white/60">
-          {actor.languages.join(" · ")}
-        </div>
-        <button
-          onClick={onOpen}
-          aria-label="View details"
-          className="mt-5 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.2em] text-white backdrop-blur ring-1 ring-white/20"
-        >
-          <Eye className="h-4 w-4 text-sky" /> View details
-        </button>
-      </div>
+      )}
 
-      <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[10px] uppercase tracking-[0.3em] text-white/50 [writing-mode:vertical-rl]">
-        Swipe up
+      <div className="pointer-events-none relative z-10 w-full p-6 pb-32 text-white">
+        <div className="pointer-events-auto">
+          <p className="text-xs uppercase tracking-[0.3em] text-sky">CyaneHub Talent</p>
+          <h2 className="mt-2 font-display text-3xl font-bold leading-tight">{actor.fullName}</h2>
+          {actor.tagline && <p className="mt-2 line-clamp-3 text-sm text-white/85">{actor.tagline}</p>}
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {actor.genres.slice(0, 4).map((g) => (
+              <span key={g} className="rounded-full bg-white/15 px-2.5 py-1 text-[11px] backdrop-blur">
+                {g}
+              </span>
+            ))}
+          </div>
+          <div className="mt-3 text-[11px] uppercase tracking-wider text-white/60">
+            {actor.languages.join(" · ")}
+          </div>
+          <button
+            onClick={onOpen}
+            aria-label="View details"
+            className="mt-5 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.2em] text-white backdrop-blur ring-1 ring-white/20"
+          >
+            <Eye className="h-4 w-4 text-sky" /> View details
+          </button>
+        </div>
       </div>
     </section>
   );

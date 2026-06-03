@@ -82,7 +82,7 @@ function ActorProfile() {
                   <p className="mt-4 max-w-2xl text-lg text-white/90">{actor.tagline}</p>
                 )}
                 <div className="mt-5 flex flex-wrap gap-2">
-                  {actor.genres.map((g) => (
+                  {actor.genres.map((g: string) => (
                     <span key={g} className="rounded-full bg-white/15 px-3 py-1 text-xs backdrop-blur">
                       {g}
                     </span>

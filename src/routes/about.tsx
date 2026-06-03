@@ -23,7 +23,9 @@ function AboutPage() {
   return (
     <>
       <FloatingNav />
-      <main className="pt-24 pb-16 md:pt-32">
+      <MobileTopBar />
+      <main className="pt-20 pb-24 md:pt-32">
+
         {/* Hero */}
         <section className="relative overflow-hidden">
           <div className="absolute inset-0 imigongo-bg opacity-40" />

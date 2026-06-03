@@ -134,7 +134,7 @@ export const listActorsAdmin = createServerFn({ method: "GET" })
     const { data, error } = await supabaseAdmin
       .from("actors")
       .select(
-        "id, slug, full_name, nationality, dob, tagline, bio, genres, languages, instagram, linkedin, filmography, journey, featured, sort_order, profile_photo"
+        "id, slug, full_name, nationality, dob, tagline, bio, genres, languages, instagram, linkedin, filmography, journey, featured, sort_order, profile_photo, gallery"
       )
       .order("sort_order", { ascending: true });
     if (error) throw new Error(error.message);

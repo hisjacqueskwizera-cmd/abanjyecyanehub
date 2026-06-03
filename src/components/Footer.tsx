@@ -47,7 +47,7 @@ const columns = [
 
 export function Footer() {
   return (
-    <footer className="relative mt-20 border-t border-border bg-background">
+    <footer className="relative mt-20 border-t border-border bg-background hidden md:block">
       <div className="absolute inset-0 imigongo-bg opacity-[0.06] pointer-events-none" />
 
       <div className="relative mx-auto max-w-7xl px-6 pt-16 pb-10 md:pt-20">

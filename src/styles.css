@@ -35,8 +35,9 @@
   --color-ink: var(--ink);
   --color-sky: var(--sky);
   --color-sky-soft: var(--sky-soft);
-  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+
 }
 
 :root {

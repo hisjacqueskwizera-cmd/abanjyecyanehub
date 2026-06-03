@@ -390,22 +390,32 @@ function instaUrl(h: string) {
   return h.startsWith("http") ? h : `https://instagram.com/${h.replace(/[@\s]/g, "")}`;
 }
 
-function parseFilmography(raw?: string | null) {
+export type FilmEntry = {
+  title: string;
+  detail?: string;
+  year?: string;
+  url?: string;
+};
+
+function parseFilmography(raw?: string | null): FilmEntry[] {
   if (!raw) return [];
   return raw
-    .split(/\r?\n|;|·|•/)
+    .split(/\r?\n|;/)
     .map((s) => s.trim())
     .filter(Boolean)
-    .map((line) => {
-      const yearMatch = line.match(/\b(19|20)\d{2}\b/);
+    .map((line): FilmEntry => {
+      const urlMatch = line.match(/https?:\/\/\S+/);
+      const url = urlMatch ? urlMatch[0].replace(/[)\].,]+$/, "") : undefined;
+      const cleaned = (url ? line.replace(url, "") : line).trim();
+      const yearMatch = cleaned.match(/\b(19|20)\d{2}(?:[-–]\d{2,4})?\b/);
       const year = yearMatch ? yearMatch[0] : undefined;
-      const withoutYear = year ? line.replace(year, "").replace(/[()\s,-]+$/, "").trim() : line;
-      const [title, ...rest] = withoutYear.split(/\s*[-:|]\s+/);
-      return {
-        title: (title || withoutYear).replace(/^[-•·\s]+/, "").trim(),
-        detail: rest.join(" - ").trim() || undefined,
-        year,
-      };
+      const withoutYear = year
+        ? cleaned.replace(year, "").replace(/[()\s,|-]+$/, "").trim()
+        : cleaned;
+      const parts = withoutYear.split(/\s*[|·•]\s*|\s+[-–:]\s+/).filter(Boolean);
+      const title = (parts[0] || withoutYear).replace(/^[-•·\s|]+/, "").replace(/[\s|-]+$/, "").trim();
+      const detail = parts.slice(1).join(" · ").trim() || undefined;
+      return { title, detail, year, url };
     });
 }
 
@@ -416,3 +426,23 @@ function parseJourney(raw?: string | null) {
     .map((s) => s.trim().replace(/^[-•·*\s]+/, ""))
     .filter(Boolean);
 }
+
+export function toYouTubeEmbed(url: string): string | null {
+  try {
+    const u = new URL(url);
+    if (u.hostname.includes("youtu.be")) {
+      const id = u.pathname.slice(1);
+      return id ? `https://www.youtube.com/embed/${id}` : null;
+    }
+    if (u.hostname.includes("youtube.com")) {
+      const id = u.searchParams.get("v");
+      if (id) return `https://www.youtube.com/embed/${id}`;
+      const m = u.pathname.match(/\/embed\/([^/?]+)/);
+      if (m) return `https://www.youtube.com/embed/${m[1]}`;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+

@@ -22,6 +22,7 @@ import { FloatingNav } from "@/components/FloatingNav";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { MobileTopBar } from "@/components/MobileTopBar";
 import { Footer } from "@/components/Footer";
+import { ShareButton } from "@/components/ShareButton";
 import { initials, portraitGradient, type Actor } from "@/data/actors";
 import { actorQueryOptions, actorsQueryOptions } from "@/lib/actors-query";
 
@@ -187,6 +188,11 @@ function ActorProfile() {
                       <Linkedin className="h-4 w-4" /> LinkedIn
                     </a>
                   )}
+                  <ShareButton
+                    title={`${actor.fullName} | CyaneHub`}
+                    text={actor.tagline ?? undefined}
+                    path={`/actors/${actor.id}`}
+                  />
                 </div>
               </div>
             </div>

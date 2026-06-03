@@ -19,6 +19,7 @@ const ActorInput = z.object({
   featured: z.boolean(),
   sort_order: z.number().int().min(0).max(100000),
   profile_photo: z.string().max(1000).nullable().optional(),
+  gallery: z.array(z.string().min(1).max(1000)).max(20).default([]),
 });
 
 export type ActorInputType = z.infer<typeof ActorInput>;
@@ -93,6 +94,7 @@ export const upsertActor = createServerFn({ method: "POST" })
       featured: data.featured,
       sort_order: data.sort_order,
       profile_photo: cleanNullable(data.profile_photo ?? null),
+      gallery: data.gallery ?? [],
     };
     if (data.id) {
       const { data: row, error } = await supabaseAdmin
@@ -132,7 +134,7 @@ export const listActorsAdmin = createServerFn({ method: "GET" })
     const { data, error } = await supabaseAdmin
       .from("actors")
       .select(
-        "id, slug, full_name, nationality, dob, tagline, bio, genres, languages, instagram, linkedin, filmography, journey, featured, sort_order, profile_photo"
+        "id, slug, full_name, nationality, dob, tagline, bio, genres, languages, instagram, linkedin, filmography, journey, featured, sort_order, profile_photo, gallery"
       )
       .order("sort_order", { ascending: true });
     if (error) throw new Error(error.message);

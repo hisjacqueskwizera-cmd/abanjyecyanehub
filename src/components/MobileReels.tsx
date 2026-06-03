@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { Drawer } from "vaul";
 import {
   ArrowUpRight,
   Calendar,
-  ChevronDown,
   Eye,
   Film,
   Instagram,
@@ -127,221 +127,223 @@ function Reel({ actor, onOpen }: { actor: Actor; onOpen: () => void }) {
 }
 
 function BottomSheet({ actor, onClose }: { actor: Actor | null; onClose: () => void }) {
-  if (!actor) return null;
-  const year = actor.dob ? new Date(actor.dob).getFullYear() : null;
-  const films = parseFilms(actor.filmography);
+  const open = !!actor;
+  const year = actor?.dob ? new Date(actor.dob).getFullYear() : null;
+  const films = actor ? parseFilms(actor.filmography) : [];
   const reels = films.filter((f) => f.url && youTubeEmbed(f.url));
 
   return (
-    <div className="fixed inset-0 z-[60]">
-      <button
-        aria-label="Close"
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm animate-float-in"
-        onClick={onClose}
-      />
-      <div className="absolute inset-x-0 bottom-0 max-h-[92dvh] overflow-hidden rounded-t-[28px] bg-background shadow-[var(--shadow-elevate)] animate-float-in">
-        <button
-          aria-label="Close sheet"
-          onClick={onClose}
-          className="absolute inset-x-0 top-0 z-10 flex h-7 items-center justify-center"
+    <Drawer.Root open={open} onOpenChange={(o) => !o && onClose()} shouldScaleBackground>
+      <Drawer.Portal>
+        <Drawer.Overlay className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm" />
+        <Drawer.Content
+          className="fixed inset-x-0 bottom-0 z-[61] mt-24 flex h-[92dvh] flex-col rounded-t-[28px] bg-background shadow-[var(--shadow-elevate)] outline-none"
         >
-          <span className="mt-2 h-1.5 w-12 rounded-full bg-border" />
-        </button>
-
-        <div className="max-h-[92dvh] overflow-y-auto overscroll-contain pb-[calc(env(safe-area-inset-bottom)+96px)]">
-          <div
-            className="relative h-44 w-full"
-            style={{ background: portraitGradient(actor.fullName) }}
-          >
-            {actor.profilePhoto ? (
-              <img
-                src={actor.profilePhoto}
-                alt={actor.fullName}
-                className="absolute inset-0 h-full w-full object-cover"
-              />
-            ) : (
-              <>
-                <div className="absolute inset-0 imigongo-bg opacity-20 mix-blend-overlay" />
-                <span className="absolute inset-0 flex items-center justify-center font-display text-[5rem] font-black text-white/85">
-                  {initials(actor.fullName)}
-                </span>
-              </>
-            )}
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
-            <button
-              onClick={onClose}
-              aria-label="Close"
-              className="absolute right-3 top-3 inline-flex h-9 items-center gap-1.5 rounded-full bg-black/55 px-3 text-xs font-semibold text-white backdrop-blur"
-            >
-              <ChevronDown className="h-4 w-4" /> Close
-            </button>
-            <div className="absolute inset-x-0 bottom-0 px-5 pb-3">
-              <p className="text-[10px] uppercase tracking-[0.3em] text-sky">
-                {actor.nationality ?? "CyaneHub Talent"}
-              </p>
-              <h3 className="font-display text-2xl font-bold leading-tight text-ink">
-                {actor.fullName}
-              </h3>
-              {actor.tagline && (
-                <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{actor.tagline}</p>
-              )}
-            </div>
+          {/* Drag handle */}
+          <div className="flex h-7 shrink-0 items-center justify-center" aria-hidden>
+            <span className="mt-2 h-1.5 w-12 rounded-full bg-border" />
           </div>
+          <Drawer.Title className="sr-only">{actor?.fullName ?? "Actor details"}</Drawer.Title>
+          <Drawer.Description className="sr-only">
+            {actor?.tagline ?? "Actor profile details"}
+          </Drawer.Description>
 
-          <div className="flex gap-2 overflow-x-auto px-5 pt-3 pb-1 no-scrollbar">
-            {actor.languages.length > 0 && (
-              <Chip icon={<Languages className="h-3.5 w-3.5" />}>{actor.languages.join(", ")}</Chip>
-            )}
-            {actor.nationality && (
-              <Chip icon={<MapPin className="h-3.5 w-3.5" />}>{actor.nationality}</Chip>
-            )}
-            {year && <Chip icon={<Calendar className="h-3.5 w-3.5" />}>Born {year}</Chip>}
-          </div>
-
-          {actor.genres.length > 0 && (
-            <div className="px-5 pt-3">
-              <div className="flex flex-wrap gap-1.5">
-                {actor.genres.map((g) => (
-                  <span
-                    key={g}
-                    className="rounded-full bg-sky-soft px-3 py-1 text-xs font-medium text-ink"
-                  >
-                    {g}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {reels.length > 0 && (
-            <div className="mt-5">
-              <h4 className="flex items-center gap-1.5 px-5 text-[11px] font-semibold uppercase tracking-[0.25em] text-sky">
-                <PlayCircle className="h-3.5 w-3.5" /> Watch · Reels
-              </h4>
-              <div className="mt-2 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-1 no-scrollbar">
-                {reels.map((f, i) => (
-                  <figure
-                    key={`reel-${i}`}
-                    className="w-[82%] shrink-0 snap-start overflow-hidden rounded-2xl border bg-ink"
-                  >
-                    <div className="relative aspect-video w-full bg-black">
-                      <iframe
-                        src={youTubeEmbed(f.url) ?? undefined}
-                        title={f.title}
-                        loading="lazy"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        allowFullScreen
-                        className="absolute inset-0 h-full w-full"
-                      />
-                    </div>
-                    <figcaption className="flex items-center justify-between gap-2 p-3 text-white">
-                      <p className="truncate text-sm font-semibold">{f.title}</p>
-                      {f.year && (
-                        <span className="rounded-full bg-sky px-2 py-0.5 text-[10px] font-bold text-ink">
-                          {f.year}
-                        </span>
-                      )}
-                    </figcaption>
-                  </figure>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {actor.bio && (
-            <SheetSection icon={<Sparkles className="h-3.5 w-3.5" />} title="Biography">
-              <p className="whitespace-pre-line text-[14px] leading-relaxed text-foreground/90">
-                {actor.bio}
-              </p>
-            </SheetSection>
-          )}
-
-          {films.length > 0 && (
-            <SheetSection icon={<Film className="h-3.5 w-3.5" />} title="Filmography">
-              <ul className="divide-y divide-border overflow-hidden rounded-2xl border bg-card">
-                {films.map((f, i) => (
-                  <li key={`f-${i}`} className="flex items-center gap-3 p-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-sky-soft text-sky">
-                      <Film className="h-4 w-4" />
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-ink">{f.title}</p>
-                      {f.detail && (
-                        <p className="truncate text-[12px] text-muted-foreground">{f.detail}</p>
-                      )}
-                    </div>
-                    {f.year && (
-                      <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-ink">
-                        {f.year}
+          {actor && (
+            <div className="flex min-h-0 flex-1 flex-col">
+              <div className="flex-1 overflow-y-auto overscroll-contain pb-[calc(env(safe-area-inset-bottom)+96px)]">
+                <div
+                  className="relative h-44 w-full"
+                  style={{ background: portraitGradient(actor.fullName) }}
+                >
+                  {actor.profilePhoto ? (
+                    <img
+                      src={actor.profilePhoto}
+                      alt={actor.fullName}
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
+                  ) : (
+                    <>
+                      <div className="absolute inset-0 imigongo-bg opacity-20 mix-blend-overlay" />
+                      <span className="absolute inset-0 flex items-center justify-center font-display text-[5rem] font-black text-white/85">
+                        {initials(actor.fullName)}
                       </span>
+                    </>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
+                  <div className="absolute inset-x-0 bottom-0 px-5 pb-3">
+                    <p className="text-[10px] uppercase tracking-[0.3em] text-sky">
+                      {actor.nationality ?? "CyaneHub Talent"}
+                    </p>
+                    <h3 className="font-display text-2xl font-bold leading-tight text-ink">
+                      {actor.fullName}
+                    </h3>
+                    {actor.tagline && (
+                      <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{actor.tagline}</p>
                     )}
-                    {f.url && (
-                      <a
-                        href={f.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        aria-label={`Watch ${f.title}`}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-ink text-sky"
-                      >
-                        {youTubeEmbed(f.url) ? (
-                          <PlayCircle className="h-4 w-4" />
-                        ) : (
-                          <ArrowUpRight className="h-4 w-4" />
-                        )}
-                      </a>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </SheetSection>
+                  </div>
+                </div>
+
+                <div className="flex gap-2 overflow-x-auto px-5 pt-3 pb-1 no-scrollbar">
+                  {actor.languages.length > 0 && (
+                    <Chip icon={<Languages className="h-3.5 w-3.5" />}>
+                      {actor.languages.join(", ")}
+                    </Chip>
+                  )}
+                  {actor.nationality && (
+                    <Chip icon={<MapPin className="h-3.5 w-3.5" />}>{actor.nationality}</Chip>
+                  )}
+                  {year && <Chip icon={<Calendar className="h-3.5 w-3.5" />}>Born {year}</Chip>}
+                </div>
+
+                {actor.genres.length > 0 && (
+                  <div className="px-5 pt-3">
+                    <div className="flex flex-wrap gap-1.5">
+                      {actor.genres.map((g) => (
+                        <span
+                          key={g}
+                          className="rounded-full bg-sky-soft px-3 py-1 text-xs font-medium text-ink"
+                        >
+                          {g}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {reels.length > 0 && (
+                  <div className="mt-5">
+                    <h4 className="flex items-center gap-1.5 px-5 text-[11px] font-semibold uppercase tracking-[0.25em] text-sky">
+                      <PlayCircle className="h-3.5 w-3.5" /> Watch · Reels
+                    </h4>
+                    <div className="mt-2 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-1 no-scrollbar">
+                      {reels.map((f, i) => (
+                        <figure
+                          key={`reel-${i}`}
+                          className="w-[82%] shrink-0 snap-start overflow-hidden rounded-2xl border bg-ink"
+                        >
+                          <div className="relative aspect-video w-full bg-black">
+                            <iframe
+                              src={youTubeEmbed(f.url) ?? undefined}
+                              title={f.title}
+                              loading="lazy"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                              allowFullScreen
+                              className="absolute inset-0 h-full w-full"
+                            />
+                          </div>
+                          <figcaption className="flex items-center justify-between gap-2 p-3 text-white">
+                            <p className="truncate text-sm font-semibold">{f.title}</p>
+                            {f.year && (
+                              <span className="rounded-full bg-sky px-2 py-0.5 text-[10px] font-bold text-ink">
+                                {f.year}
+                              </span>
+                            )}
+                          </figcaption>
+                        </figure>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {actor.bio && (
+                  <SheetSection icon={<Sparkles className="h-3.5 w-3.5" />} title="Biography">
+                    <p className="whitespace-pre-line text-[14px] leading-relaxed text-foreground/90">
+                      {actor.bio}
+                    </p>
+                  </SheetSection>
+                )}
+
+                {films.length > 0 && (
+                  <SheetSection icon={<Film className="h-3.5 w-3.5" />} title="Filmography">
+                    <ul className="divide-y divide-border overflow-hidden rounded-2xl border bg-card">
+                      {films.map((f, i) => (
+                        <li key={`f-${i}`} className="flex items-center gap-3 p-3">
+                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-sky-soft text-sky">
+                            <Film className="h-4 w-4" />
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm font-semibold text-ink">{f.title}</p>
+                            {f.detail && (
+                              <p className="truncate text-[12px] text-muted-foreground">{f.detail}</p>
+                            )}
+                          </div>
+                          {f.year && (
+                            <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-ink">
+                              {f.year}
+                            </span>
+                          )}
+                          {f.url && (
+                            <a
+                              href={f.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              aria-label={`Watch ${f.title}`}
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-ink text-sky"
+                            >
+                              {youTubeEmbed(f.url) ? (
+                                <PlayCircle className="h-4 w-4" />
+                              ) : (
+                                <ArrowUpRight className="h-4 w-4" />
+                              )}
+                            </a>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </SheetSection>
+                )}
+
+                {actor.journey && (
+                  <SheetSection title="Urugendo / Journey">
+                    <p className="whitespace-pre-wrap text-sm text-muted-foreground">
+                      {actor.journey}
+                    </p>
+                  </SheetSection>
+                )}
+
+                <div className="mt-6 flex gap-3 px-5">
+                  {actor.instagram && (
+                    <a
+                      href={
+                        actor.instagram.startsWith("http")
+                          ? actor.instagram
+                          : `https://instagram.com/${actor.instagram.replace(/[@\s]/g, "")}`
+                      }
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium hover:bg-muted"
+                    >
+                      <Instagram className="h-4 w-4" /> Instagram
+                    </a>
+                  )}
+                  {actor.linkedin && actor.linkedin.startsWith("http") && (
+                    <a
+                      href={actor.linkedin}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium hover:bg-muted"
+                    >
+                      <Linkedin className="h-4 w-4" /> LinkedIn
+                    </a>
+                  )}
+                </div>
+              </div>
+
+              <div className="absolute inset-x-0 bottom-0 border-t bg-background/95 px-4 pb-[calc(env(safe-area-inset-bottom)+12px)] pt-3 backdrop-blur">
+                <Link
+                  to="/actors/$id"
+                  params={{ id: actor.id }}
+                  onClick={onClose}
+                  className="block w-full rounded-full bg-ink py-3 text-center text-sm font-semibold text-white active:scale-[0.99]"
+                >
+                  Open full profile
+                </Link>
+              </div>
+            </div>
           )}
-
-          {actor.journey && (
-            <SheetSection title="Urugendo / Journey">
-              <p className="whitespace-pre-wrap text-sm text-muted-foreground">{actor.journey}</p>
-            </SheetSection>
-          )}
-
-          <div className="mt-6 flex gap-3 px-5">
-            {actor.instagram && (
-              <a
-                href={
-                  actor.instagram.startsWith("http")
-                    ? actor.instagram
-                    : `https://instagram.com/${actor.instagram.replace(/[@\s]/g, "")}`
-                }
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium hover:bg-muted"
-              >
-                <Instagram className="h-4 w-4" /> Instagram
-              </a>
-            )}
-            {actor.linkedin && actor.linkedin.startsWith("http") && (
-              <a
-                href={actor.linkedin}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium hover:bg-muted"
-              >
-                <Linkedin className="h-4 w-4" /> LinkedIn
-              </a>
-            )}
-          </div>
-        </div>
-
-        <div className="absolute inset-x-0 bottom-0 border-t bg-background/95 px-4 pb-[calc(env(safe-area-inset-bottom)+12px)] pt-3 backdrop-blur">
-          <Link
-            to="/actors/$id"
-            params={{ id: actor.id }}
-            onClick={onClose}
-            className="block w-full rounded-full bg-ink py-3 text-center text-sm font-semibold text-white active:scale-[0.99]"
-          >
-            Open full profile
-          </Link>
-        </div>
-      </div>
-    </div>
+        </Drawer.Content>
+      </Drawer.Portal>
+    </Drawer.Root>
   );
 }
 

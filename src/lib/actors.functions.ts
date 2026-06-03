@@ -17,10 +17,11 @@ export interface ActorRow {
   journey: string | null;
   featured: boolean;
   profilePhoto: string | null;
+  gallery: string[];
 }
 
 const SELECT_COLS =
-  "id, slug, full_name, nationality, dob, tagline, bio, genres, languages, instagram, linkedin, filmography, journey, featured, profile_photo";
+  "id, slug, full_name, nationality, dob, tagline, bio, genres, languages, instagram, linkedin, filmography, journey, featured, profile_photo, gallery";
 
 const mapRow = (r: Record<string, unknown>): ActorRow => ({
   id: r.slug as string,
@@ -38,6 +39,7 @@ const mapRow = (r: Record<string, unknown>): ActorRow => ({
   journey: (r.journey as string | null) ?? null,
   featured: Boolean(r.featured),
   profilePhoto: (r.profile_photo as string | null) ?? null,
+  gallery: ((r.gallery as string[]) ?? []).filter(Boolean),
 });
 
 export const listActors = createServerFn({ method: "GET" }).handler(async () => {

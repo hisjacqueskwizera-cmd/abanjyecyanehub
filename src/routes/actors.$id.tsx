@@ -1,5 +1,7 @@
 import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import {
   ArrowLeft,
@@ -123,27 +125,7 @@ function ActorProfile() {
 
 
             <div className="mt-8 grid items-end gap-8 md:mt-10 md:grid-cols-[minmax(0,1fr)_2fr]">
-              <div className="relative mx-auto aspect-[3/4] w-full max-w-[280px] overflow-hidden rounded-3xl ring-4 ring-white/30 shadow-[var(--shadow-elevate)] md:mx-0 md:max-w-none">
-                {actor.profilePhoto ? (
-                  <img
-                    src={actor.profilePhoto}
-                    alt={actor.fullName}
-                    className="absolute inset-0 h-full w-full object-cover"
-                  />
-                ) : (
-                  <>
-                    <div className="absolute inset-0 imigongo-bg opacity-25 mix-blend-overlay" />
-                    <span className="absolute inset-0 flex items-center justify-center font-display text-[6rem] font-black text-white/85">
-                      {initials(actor.fullName)}
-                    </span>
-                  </>
-                )}
-                {actor.featured && (
-                  <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-sky px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-ink">
-                    <Star className="h-3 w-3" /> Featured
-                  </span>
-                )}
-              </div>
+              <ProfileGallery actor={actor} />
 
               <div className="pb-2 text-white">
                 <p className="text-[11px] uppercase tracking-[0.3em] text-sky">CyaneHub Talent</p>
@@ -536,3 +518,108 @@ export function toYouTubeEmbed(url: string): string | null {
   }
 }
 
+
+function ProfileGallery({ actor }: { actor: Actor }) {
+  const photos = actor.gallery.length > 0
+    ? actor.gallery
+    : actor.profilePhoto
+      ? [actor.profilePhoto]
+      : [];
+  const [idx, setIdx] = useState(0);
+
+  if (photos.length === 0) {
+    return (
+      <div
+        className="relative mx-auto aspect-[3/4] w-full max-w-[280px] overflow-hidden rounded-3xl ring-4 ring-white/30 shadow-[var(--shadow-elevate)] md:mx-0 md:max-w-none"
+        style={{ background: portraitGradient(actor.fullName) }}
+      >
+        <div className="absolute inset-0 imigongo-bg opacity-25 mix-blend-overlay" />
+        <span className="absolute inset-0 flex items-center justify-center font-display text-[6rem] font-black text-white/85">
+          {initials(actor.fullName)}
+        </span>
+        {actor.featured && (
+          <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-sky px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-ink">
+            <Star className="h-3 w-3" /> Featured
+          </span>
+        )}
+      </div>
+    );
+  }
+
+  const go = (dir: -1 | 1) => {
+    setIdx((i) => (i + dir + photos.length) % photos.length);
+  };
+
+  return (
+    <div className="mx-auto w-full max-w-[320px] md:mx-0 md:max-w-none">
+      <div className="group relative aspect-[3/4] overflow-hidden rounded-3xl ring-4 ring-white/30 shadow-[var(--shadow-elevate)]">
+        {photos.map((src, i) => (
+          <img
+            key={src}
+            src={src}
+            alt={`${actor.fullName} photo ${i + 1}`}
+            loading={i === 0 ? "eager" : "lazy"}
+            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${
+              i === idx ? "opacity-100" : "opacity-0"
+            }`}
+          />
+        ))}
+        {actor.featured && (
+          <span className="absolute left-3 top-3 z-10 inline-flex items-center gap-1 rounded-full bg-sky px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-ink">
+            <Star className="h-3 w-3" /> Featured
+          </span>
+        )}
+        {photos.length > 1 && (
+          <>
+            <button
+              type="button"
+              onClick={() => go(-1)}
+              aria-label="Previous photo"
+              className="absolute left-2 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/45 p-2 text-white opacity-0 backdrop-blur transition group-hover:opacity-100"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => go(1)}
+              aria-label="Next photo"
+              className="absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/45 p-2 text-white opacity-0 backdrop-blur transition group-hover:opacity-100"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+            <div className="absolute inset-x-0 bottom-3 z-10 flex justify-center gap-1.5">
+              {photos.map((_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setIdx(i)}
+                  aria-label={`Go to photo ${i + 1}`}
+                  className={`h-1.5 rounded-full transition-all ${
+                    i === idx ? "w-6 bg-white" : "w-1.5 bg-white/50"
+                  }`}
+                />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+      {photos.length > 1 && (
+        <div className="mt-3 grid grid-cols-5 gap-1.5">
+          {photos.slice(0, 5).map((src, i) => (
+            <button
+              key={`thumb-${i}`}
+              type="button"
+              onClick={() => setIdx(i)}
+              aria-label={`Show photo ${i + 1}`}
+              className={`relative aspect-square overflow-hidden rounded-lg ring-2 transition ${
+                i === idx ? "ring-sky" : "ring-transparent opacity-70 hover:opacity-100"
+              }`}
+            >
+              <img src={src} alt="" className="h-full w-full object-cover" />
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

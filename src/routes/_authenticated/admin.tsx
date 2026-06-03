@@ -69,6 +69,7 @@ type ActorRecord = {
   featured: boolean;
   sort_order: number;
   profile_photo: string | null;
+  gallery: string[];
 };
 
 const emptyActor: ActorInputType = {
@@ -87,6 +88,7 @@ const emptyActor: ActorInputType = {
   featured: false,
   sort_order: 0,
   profile_photo: "",
+  gallery: [],
 };
 
 function AdminPage() {
@@ -416,6 +418,7 @@ function ActorFormDialog({
           featured: actor.featured,
           sort_order: actor.sort_order,
           profile_photo: actor.profile_photo ?? "",
+          gallery: actor.gallery ?? [],
         });
         setGenresInput((actor.genres ?? []).join(", "));
         setLanguagesInput((actor.languages ?? []).join(", "));
@@ -443,7 +446,9 @@ function ActorFormDialog({
     e.preventDefault();
     const genres = genresInput.split(",").map((s) => s.trim()).filter(Boolean);
     const languages = languagesInput.split(",").map((s) => s.trim()).filter(Boolean);
-    onSubmit({ ...form, genres, languages });
+    const gallery = (form.gallery ?? []).filter(Boolean);
+    const profile_photo = gallery[0] ?? form.profile_photo ?? "";
+    onSubmit({ ...form, genres, languages, gallery, profile_photo });
   };
 
   return (
@@ -562,14 +567,12 @@ function ActorFormDialog({
             </Field>
           </div>
 
-          <Field label="Profile photo URL">
-            <input
-              value={form.profile_photo ?? ""}
-              onChange={(e) => update("profile_photo", e.target.value)}
-              className={inputClass}
-              placeholder="https://..."
-            />
-          </Field>
+          <GalleryUploader
+            slug={form.slug || "untitled"}
+            value={form.gallery ?? []}
+            onChange={(g) => update("gallery", g)}
+          />
+
 
           <Field label="Biography">
             <textarea

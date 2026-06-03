@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ActorsRouteImport } from './routes/actors'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ActorsIdRouteImport } from './routes/actors.$id'
 
 const ActorsRoute = ActorsRouteImport.update({
   id: '/actors',
@@ -22,31 +23,39 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ActorsIdRoute = ActorsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ActorsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/actors': typeof ActorsRoute
+  '/actors': typeof ActorsRouteWithChildren
+  '/actors/$id': typeof ActorsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/actors': typeof ActorsRoute
+  '/actors': typeof ActorsRouteWithChildren
+  '/actors/$id': typeof ActorsIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/actors': typeof ActorsRoute
+  '/actors': typeof ActorsRouteWithChildren
+  '/actors/$id': typeof ActorsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/actors'
+  fullPaths: '/' | '/actors' | '/actors/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/actors'
-  id: '__root__' | '/' | '/actors'
+  to: '/' | '/actors' | '/actors/$id'
+  id: '__root__' | '/' | '/actors' | '/actors/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ActorsRoute: typeof ActorsRoute
+  ActorsRoute: typeof ActorsRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +74,30 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/actors/$id': {
+      id: '/actors/$id'
+      path: '/$id'
+      fullPath: '/actors/$id'
+      preLoaderRoute: typeof ActorsIdRouteImport
+      parentRoute: typeof ActorsRoute
+    }
   }
 }
 
+interface ActorsRouteChildren {
+  ActorsIdRoute: typeof ActorsIdRoute
+}
+
+const ActorsRouteChildren: ActorsRouteChildren = {
+  ActorsIdRoute: ActorsIdRoute,
+}
+
+const ActorsRouteWithChildren =
+  ActorsRoute._addFileChildren(ActorsRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ActorsRoute: ActorsRoute,
+  ActorsRoute: ActorsRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

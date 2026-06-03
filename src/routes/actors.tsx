@@ -4,6 +4,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Search } from "lucide-react";
 import { FloatingNav } from "@/components/FloatingNav";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { MobileTopBar } from "@/components/MobileTopBar";
 import { ActorCard } from "@/components/ActorCard";
 import { Footer } from "@/components/Footer";
 import { actorsQueryOptions } from "@/lib/actors-query";

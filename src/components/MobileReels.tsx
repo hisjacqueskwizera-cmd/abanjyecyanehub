@@ -17,6 +17,7 @@ import {
 import { actorsQueryOptions } from "@/lib/actors-query";
 import { initials, portraitGradient, type Actor } from "@/data/actors";
 import { MobileTopBar } from "./MobileTopBar";
+import { ShareButton } from "./ShareButton";
 
 function parseFilms(raw?: string | null) {
   if (!raw) return [];

@@ -23,6 +23,7 @@ import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { MobileTopBar } from "@/components/MobileTopBar";
 import { Footer } from "@/components/Footer";
 import { ShareButton } from "@/components/ShareButton";
+import { ActorEngagement } from "@/components/ActorEngagement";
 import { initials, portraitGradient, type Actor } from "@/data/actors";
 import { actorQueryOptions, actorsQueryOptions } from "@/lib/actors-query";
 

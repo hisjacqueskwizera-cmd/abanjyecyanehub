@@ -137,6 +137,7 @@ export function CommentsSheet({ actorId, actorName, open, onOpenChange }: Props)
                 className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-ink text-sky disabled:opacity-40"
               >
                 <Send className="h-4 w-4" />
+              </button>
             </div>
           </form>
         </Drawer.Content>

@@ -1,6 +1,12 @@
 import { useState, useEffect } from "react";
 import { Heart, MessageCircle, Send } from "lucide-react";
-import { useActorComments, useActorLikes } from "@/lib/actor-engagement";
+import {
+  useActorComments,
+  useActorLikes,
+  MIN_COMMENT_LENGTH,
+  MAX_COMMENT_LENGTH,
+  MAX_NAME_LENGTH,
+} from "@/lib/actor-engagement";
 import { getAnonName, setAnonName } from "@/lib/anon-id";
 import { formatDistanceToNow } from "@/lib/format-time";
 
@@ -10,18 +16,25 @@ export function ActorEngagement({ actorId }: { actorId: string }) {
   const [body, setBody] = useState("");
   const [name, setName] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setName(getAnonName());
   }, []);
 
+  const trimmedLen = body.trim().length;
+  const canSubmit =
+    trimmedLen >= MIN_COMMENT_LENGTH && trimmedLen <= MAX_COMMENT_LENGTH && !submitting;
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!body.trim() || submitting) return;
+    if (!canSubmit) return;
     setSubmitting(true);
+    setError(null);
     if (name.trim()) setAnonName(name);
-    await post(body, name);
-    setBody("");
+    const res = await post(body, name);
+    if (res?.error) setError(res.error.message);
+    else setBody("");
     setSubmitting(false);
   };
 

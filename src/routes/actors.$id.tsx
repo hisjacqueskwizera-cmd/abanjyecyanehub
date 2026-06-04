@@ -365,6 +365,8 @@ function ActorProfile() {
           </aside>
         </div>
 
+        <ActorEngagement actorId={actor.id} />
+
         {related.length > 0 && (
           <section className="mx-auto mt-16 max-w-6xl px-4 md:px-6">
             <div className="flex items-end justify-between">

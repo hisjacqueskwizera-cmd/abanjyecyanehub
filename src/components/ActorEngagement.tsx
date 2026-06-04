@@ -71,24 +71,35 @@ export function ActorEngagement({ actorId }: { actorId: string }) {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Name (optional)"
-            maxLength={40}
+            maxLength={MAX_NAME_LENGTH}
             className="rounded-full border bg-background px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-sky/40"
           />
           <input
             value={body}
-            onChange={(e) => setBody(e.target.value)}
-            placeholder="Share a thought — posted anonymously"
-            maxLength={1000}
+            onChange={(e) => {
+              setBody(e.target.value);
+              if (error) setError(null);
+            }}
+            placeholder={`Share a thought (${MIN_COMMENT_LENGTH}–${MAX_COMMENT_LENGTH} chars)`}
+            maxLength={MAX_COMMENT_LENGTH}
             className="rounded-full border bg-background px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-sky/40"
           />
           <button
             type="submit"
-            disabled={!body.trim() || submitting}
+            disabled={!canSubmit}
             className="inline-flex items-center justify-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-40"
           >
             <Send className="h-4 w-4" /> Post
           </button>
         </form>
+        <div className="mt-2 flex items-center justify-between gap-3 px-1 text-xs">
+          <span className={error ? "text-red-600" : "text-muted-foreground"}>
+            {error ?? "Posted anonymously"}
+          </span>
+          <span className="tabular-nums text-muted-foreground">
+            {trimmedLen}/{MAX_COMMENT_LENGTH}
+          </span>
+        </div>
 
         <ul className="mt-6 space-y-3">
           {comments.length === 0 ? (

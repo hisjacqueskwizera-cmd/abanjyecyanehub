@@ -23,6 +23,7 @@ import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { MobileTopBar } from "@/components/MobileTopBar";
 import { Footer } from "@/components/Footer";
 import { ShareButton } from "@/components/ShareButton";
+import { ActorEngagement } from "@/components/ActorEngagement";
 import { initials, portraitGradient, type Actor } from "@/data/actors";
 import { actorQueryOptions, actorsQueryOptions } from "@/lib/actors-query";
 
@@ -363,6 +364,8 @@ function ActorProfile() {
             </div>
           </aside>
         </div>
+
+        <ActorEngagement actorId={actor.id} />
 
         {related.length > 0 && (
           <section className="mx-auto mt-16 max-w-6xl px-4 md:px-6">

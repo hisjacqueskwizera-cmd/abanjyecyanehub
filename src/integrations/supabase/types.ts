@@ -14,6 +14,70 @@ export type Database = {
   }
   public: {
     Tables: {
+      actor_comments: {
+        Row: {
+          actor_id: string
+          anon_id: string
+          anon_name: string | null
+          body: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          actor_id: string
+          anon_id: string
+          anon_name?: string | null
+          body: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          actor_id?: string
+          anon_id?: string
+          anon_name?: string | null
+          body?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "actor_comments_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "actors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      actor_likes: {
+        Row: {
+          actor_id: string
+          anon_id: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          actor_id: string
+          anon_id: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          actor_id?: string
+          anon_id?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "actor_likes_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "actors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       actors: {
         Row: {
           bio: string | null

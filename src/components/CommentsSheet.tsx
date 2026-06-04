@@ -102,33 +102,41 @@ export function CommentsSheet({ actorId, actorName, open, onOpenChange }: Props)
             }}
             className="border-t bg-background/95 px-3 pb-[calc(env(safe-area-inset-bottom)+10px)] pt-2 backdrop-blur"
           >
-            <div className="mb-2 flex gap-2">
+            <div className="mb-2 flex items-center gap-2">
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Name (optional)"
-                maxLength={40}
+                maxLength={MAX_NAME_LENGTH}
                 className="w-32 rounded-full border bg-background px-3 py-1.5 text-xs outline-none focus:ring-2 focus:ring-sky/40"
               />
               <span className="self-center text-[10px] text-muted-foreground">Anonymous</span>
+              <span className="ml-auto text-[10px] tabular-nums text-muted-foreground">
+                {trimmedLen}/{MAX_COMMENT_LENGTH}
+              </span>
             </div>
+            {error ? (
+              <p className="mb-1 px-1 text-[11px] text-red-600">{error}</p>
+            ) : null}
             <div className="flex items-center gap-2">
               <input
                 ref={inputRef}
                 value={body}
-                onChange={(e) => setBody(e.target.value)}
-                placeholder="Add a comment…"
-                maxLength={1000}
+                onChange={(e) => {
+                  setBody(e.target.value);
+                  if (error) setError(null);
+                }}
+                placeholder={`Add a comment (min ${MIN_COMMENT_LENGTH} chars)…`}
+                maxLength={MAX_COMMENT_LENGTH}
                 className="flex-1 rounded-full border bg-background px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-sky/40"
               />
               <button
                 type="submit"
-                disabled={!body.trim() || submitting}
+                disabled={!canSubmit}
                 aria-label="Post comment"
                 className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-ink text-sky disabled:opacity-40"
               >
                 <Send className="h-4 w-4" />
-              </button>
             </div>
           </form>
         </Drawer.Content>

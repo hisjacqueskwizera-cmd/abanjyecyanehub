@@ -2,7 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { Drawer } from "vaul";
 import { Send, MessageCircle } from "lucide-react";
 import { formatDistanceToNow } from "@/lib/format-time";
-import { useActorComments } from "@/lib/actor-engagement";
+import {
+  useActorComments,
+  MIN_COMMENT_LENGTH,
+  MAX_COMMENT_LENGTH,
+  MAX_NAME_LENGTH,
+} from "@/lib/actor-engagement";
 import { getAnonName, setAnonName } from "@/lib/anon-id";
 
 interface Props {
@@ -17,18 +22,31 @@ export function CommentsSheet({ actorId, actorName, open, onOpenChange }: Props)
   const [body, setBody] = useState("");
   const [name, setName] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (open) setName(getAnonName());
+    if (open) {
+      setName(getAnonName());
+      setError(null);
+    }
   }, [open]);
 
+  const trimmedLen = body.trim().length;
+  const canSubmit =
+    trimmedLen >= MIN_COMMENT_LENGTH && trimmedLen <= MAX_COMMENT_LENGTH && !submitting;
+
   const submit = async () => {
-    if (!body.trim() || submitting) return;
+    if (!canSubmit) return;
     setSubmitting(true);
+    setError(null);
     if (name.trim()) setAnonName(name);
-    await post(body, name);
-    setBody("");
+    const res = await post(body, name);
+    if (res?.error) {
+      setError(res.error.message);
+    } else {
+      setBody("");
+    }
     setSubmitting(false);
     inputRef.current?.focus();
   };
@@ -84,28 +102,37 @@ export function CommentsSheet({ actorId, actorName, open, onOpenChange }: Props)
             }}
             className="border-t bg-background/95 px-3 pb-[calc(env(safe-area-inset-bottom)+10px)] pt-2 backdrop-blur"
           >
-            <div className="mb-2 flex gap-2">
+            <div className="mb-2 flex items-center gap-2">
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Name (optional)"
-                maxLength={40}
+                maxLength={MAX_NAME_LENGTH}
                 className="w-32 rounded-full border bg-background px-3 py-1.5 text-xs outline-none focus:ring-2 focus:ring-sky/40"
               />
               <span className="self-center text-[10px] text-muted-foreground">Anonymous</span>
+              <span className="ml-auto text-[10px] tabular-nums text-muted-foreground">
+                {trimmedLen}/{MAX_COMMENT_LENGTH}
+              </span>
             </div>
+            {error ? (
+              <p className="mb-1 px-1 text-[11px] text-red-600">{error}</p>
+            ) : null}
             <div className="flex items-center gap-2">
               <input
                 ref={inputRef}
                 value={body}
-                onChange={(e) => setBody(e.target.value)}
-                placeholder="Add a comment…"
-                maxLength={1000}
+                onChange={(e) => {
+                  setBody(e.target.value);
+                  if (error) setError(null);
+                }}
+                placeholder={`Add a comment (min ${MIN_COMMENT_LENGTH} chars)…`}
+                maxLength={MAX_COMMENT_LENGTH}
                 className="flex-1 rounded-full border bg-background px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-sky/40"
               />
               <button
                 type="submit"
-                disabled={!body.trim() || submitting}
+                disabled={!canSubmit}
                 aria-label="Post comment"
                 className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-ink text-sky disabled:opacity-40"
               >

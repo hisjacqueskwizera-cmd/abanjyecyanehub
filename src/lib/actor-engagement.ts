@@ -92,30 +92,61 @@ export function useActorComments(actorId: string | null | undefined) {
 
   const post = useCallback(
     async (body: string, name?: string) => {
-      if (!actorId) return;
+      if (!actorId) return { data: null, error: new Error("Missing actor") };
       const trimmed = body.trim();
-      if (!trimmed) return;
+      if (trimmed.length < MIN_COMMENT_LENGTH) {
+        return {
+          data: null,
+          error: new Error(`Comment must be at least ${MIN_COMMENT_LENGTH} characters`),
+        };
+      }
+      if (trimmed.length > MAX_COMMENT_LENGTH) {
+        return {
+          data: null,
+          error: new Error(`Comment must be ${MAX_COMMENT_LENGTH} characters or fewer`),
+        };
+      }
+      const cleanName = name?.trim().slice(0, MAX_NAME_LENGTH) || null;
       const anonId = getAnonId();
+      // optimistic insert
+      const tempId = `temp-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      const optimistic: ActorComment = {
+        id: tempId,
+        actor_id: actorId,
+        anon_id: anonId,
+        anon_name: cleanName,
+        body: trimmed,
+        created_at: new Date().toISOString(),
+      };
+      setComments((prev) => [optimistic, ...prev]);
       const { data, error } = await supabase
         .from("actor_comments")
         .insert({
           actor_id: actorId,
           anon_id: anonId,
-          anon_name: name?.trim() || null,
-          body: trimmed.slice(0, 1000),
+          anon_name: cleanName,
+          body: trimmed,
         })
         .select("*")
         .single();
-      if (!error && data) {
-        setComments((prev) => [data as ActorComment, ...prev]);
+      if (error || !data) {
+        // rollback
+        setComments((prev) => prev.filter((c) => c.id !== tempId));
+        return { data: null, error: error ?? new Error("Failed to post comment") };
       }
-      return { data, error };
+      // replace optimistic with real
+      setComments((prev) => [data as ActorComment, ...prev.filter((c) => c.id !== tempId)]);
+      return { data, error: null };
     },
     [actorId],
   );
 
   return { comments, loading, post, refresh };
 }
+
+export const MIN_COMMENT_LENGTH = 2;
+export const MAX_COMMENT_LENGTH = 1000;
+export const MAX_NAME_LENGTH = 40;
 
 export async function fetchLikeCount(actorId: string): Promise<number> {
   const { count } = await supabase

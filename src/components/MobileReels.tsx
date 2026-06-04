@@ -64,20 +64,41 @@ function youTubeEmbed(url?: string) {
 export function MobileReels() {
   const { data: actors } = useSuspenseQuery(actorsQueryOptions);
   const [openId, setOpenId] = useState<string | null>(null);
+  const [commentsId, setCommentsId] = useState<string | null>(null);
   const open = actors.find((a) => a.id === openId) ?? null;
+  const commentsActor = actors.find((a) => a.id === commentsId) ?? null;
 
   return (
     <div className="relative h-[100dvh] w-full overflow-y-scroll snap-y-mandatory no-scrollbar md:hidden">
       <MobileTopBar variant="dark" />
       {actors.map((a) => (
-        <Reel key={a.id} actor={a} onOpen={() => setOpenId(a.id)} />
+        <Reel
+          key={a.id}
+          actor={a}
+          onOpen={() => setOpenId(a.id)}
+          onComment={() => setCommentsId(a.id)}
+        />
       ))}
       <BottomSheet actor={open} onClose={() => setOpenId(null)} />
+      <CommentsSheet
+        actorId={commentsActor?.id ?? null}
+        actorName={commentsActor?.fullName}
+        open={!!commentsActor}
+        onOpenChange={(o) => !o && setCommentsId(null)}
+      />
     </div>
   );
 }
 
-function Reel({ actor, onOpen }: { actor: Actor; onOpen: () => void }) {
+function Reel({
+  actor,
+  onOpen,
+  onComment,
+}: {
+  actor: Actor;
+  onOpen: () => void;
+  onComment: () => void;
+}) {
   const photos = [actor.profilePhoto, ...(actor.gallery ?? [])].filter(
     (p): p is string => !!p
   );

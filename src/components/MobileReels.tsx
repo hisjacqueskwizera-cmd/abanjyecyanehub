@@ -178,6 +178,12 @@ function Reel({
           </button>
         </div>
       </div>
+      <ReelActions
+        actorId={actor.id}
+        actorName={actor.fullName}
+        tagline={actor.tagline}
+        onComment={onComment}
+      />
     </section>
   );
 }

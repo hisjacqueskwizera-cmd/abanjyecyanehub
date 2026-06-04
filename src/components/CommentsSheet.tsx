@@ -2,7 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { Drawer } from "vaul";
 import { Send, MessageCircle } from "lucide-react";
 import { formatDistanceToNow } from "@/lib/format-time";
-import { useActorComments } from "@/lib/actor-engagement";
+import {
+  useActorComments,
+  MIN_COMMENT_LENGTH,
+  MAX_COMMENT_LENGTH,
+  MAX_NAME_LENGTH,
+} from "@/lib/actor-engagement";
 import { getAnonName, setAnonName } from "@/lib/anon-id";
 
 interface Props {
@@ -17,18 +22,31 @@ export function CommentsSheet({ actorId, actorName, open, onOpenChange }: Props)
   const [body, setBody] = useState("");
   const [name, setName] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (open) setName(getAnonName());
+    if (open) {
+      setName(getAnonName());
+      setError(null);
+    }
   }, [open]);
 
+  const trimmedLen = body.trim().length;
+  const canSubmit =
+    trimmedLen >= MIN_COMMENT_LENGTH && trimmedLen <= MAX_COMMENT_LENGTH && !submitting;
+
   const submit = async () => {
-    if (!body.trim() || submitting) return;
+    if (!canSubmit) return;
     setSubmitting(true);
+    setError(null);
     if (name.trim()) setAnonName(name);
-    await post(body, name);
-    setBody("");
+    const res = await post(body, name);
+    if (res?.error) {
+      setError(res.error.message);
+    } else {
+      setBody("");
+    }
     setSubmitting(false);
     inputRef.current?.focus();
   };

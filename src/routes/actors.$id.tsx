@@ -34,22 +34,33 @@ export const Route = createFileRoute("/actors/$id")({
     await context.queryClient.ensureQueryData(actorsQueryOptions);
     return { actor };
   },
-  head: ({ loaderData }) => ({
-    meta: loaderData
-      ? [
-          { title: `${loaderData.actor.fullName} | CyaneHub` },
-          {
-            name: "description",
-            content: loaderData.actor.tagline || loaderData.actor.bio || "Actor on CyaneHub.",
-          },
-          { property: "og:title", content: `${loaderData.actor.fullName} | CyaneHub` },
-          { property: "og:description", content: loaderData.actor.tagline || loaderData.actor.bio || "" },
-          { property: "og:type", content: "profile" },
-          { property: "og:url", content: `/actors/${loaderData.actor.id}` },
-        ]
-      : [],
-    links: loaderData ? [{ rel: "canonical", href: `/actors/${loaderData.actor.id}` }] : [],
-  }),
+  head: ({ loaderData }) => {
+    if (!loaderData) return { meta: [], links: [] };
+    const a = loaderData.actor;
+    const url = `https://abanjyecyanehub.lovable.app/actors/${a.id}`;
+    const img = a.profilePhoto || a.gallery?.[0] || null;
+    const desc = a.tagline || a.bio || "Actor on CyaneHub.";
+    const meta = [
+      { title: `${a.fullName} | CyaneHub` },
+      { name: "description", content: desc },
+      { property: "og:title", content: `${a.fullName} | CyaneHub` },
+      { property: "og:description", content: desc },
+      { property: "og:type", content: "profile" },
+      { property: "og:url", content: url },
+      { name: "twitter:card", content: img ? "summary_large_image" : "summary" },
+      { name: "twitter:title", content: `${a.fullName} | CyaneHub` },
+      { name: "twitter:description", content: desc },
+    ];
+    if (img) {
+      meta.push(
+        { property: "og:image", content: img },
+        { property: "og:image:alt", content: a.fullName },
+        { name: "twitter:image", content: img },
+      );
+    }
+    return { meta, links: [{ rel: "canonical", href: url }] };
+  },
+
   notFoundComponent: () => (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="text-center">

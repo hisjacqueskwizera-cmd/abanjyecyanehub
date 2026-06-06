@@ -21,9 +21,7 @@ export default defineConfig({
   ...(nitroPreset
     ? {
         nitro: {
-          config: {
-            preset: nitroPreset,
-          },
+          preset: nitroPreset,
         },
       }
     : {}),

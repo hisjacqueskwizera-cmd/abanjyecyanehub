@@ -39,15 +39,7 @@ export type Database = {
           created_at?: string
           id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "actor_comments_actor_id_fkey"
-            columns: ["actor_id"]
-            isOneToOne: false
-            referencedRelation: "actors"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       actor_likes: {
         Row: {
@@ -68,15 +60,7 @@ export type Database = {
           created_at?: string
           id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "actor_likes_actor_id_fkey"
-            columns: ["actor_id"]
-            isOneToOne: false
-            referencedRelation: "actors"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       actors: {
         Row: {

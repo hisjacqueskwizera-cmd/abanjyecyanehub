@@ -1,5 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { createClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
 
 export interface ActorRow {
   id: string;
@@ -42,9 +44,25 @@ const mapRow = (r: Record<string, unknown>): ActorRow => ({
   gallery: ((r.gallery as string[]) ?? []).filter(Boolean),
 });
 
+// Public, anon-only Supabase client built from the (already committed) publishable values.
+// No service-role key required — `actors` has a public SELECT RLS policy.
+function publicClient() {
+  const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+  const key =
+    process.env.SUPABASE_PUBLISHABLE_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+  if (!url || !key) {
+    throw new Error(
+      "Missing Supabase environment variable(s): SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY.",
+    );
+  }
+  return createClient<Database>(url, key, {
+    auth: { persistSession: false, autoRefreshToken: false, storage: undefined },
+  });
+}
+
 export const listActors = createServerFn({ method: "GET" }).handler(async () => {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data, error } = await supabaseAdmin
+  const supabase = publicClient();
+  const { data, error } = await supabase
     .from("actors")
     .select(SELECT_COLS)
     .order("sort_order", { ascending: true });
@@ -55,8 +73,8 @@ export const listActors = createServerFn({ method: "GET" }).handler(async () => 
 export const getActorBySlug = createServerFn({ method: "GET" })
   .inputValidator((d) => z.object({ slug: z.string().min(1).max(200) }).parse(d))
   .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: row, error } = await supabaseAdmin
+    const supabase = publicClient();
+    const { data: row, error } = await supabase
       .from("actors")
       .select(SELECT_COLS)
       .eq("slug", data.slug)

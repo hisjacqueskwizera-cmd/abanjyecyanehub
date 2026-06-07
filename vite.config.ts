@@ -12,6 +12,9 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 const isVercel = !!process.env.VERCEL;
 
 export default defineConfig({
+  // Empty plugins array so `wrangler deploy` / @cloudflare/vite-plugin's
+  // auto-modifier can locate and patch this config.
+  plugins: [],
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     server: { entry: "server" },

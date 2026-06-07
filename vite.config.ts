@@ -6,6 +6,8 @@
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
+import { cloudflare } from "@cloudflare/vite-plugin";
+
 // On Lovable we deploy to Cloudflare Workers (default).
 // On Vercel we force-enable nitro with the vercel preset and redirect its
 // output to the .vercel/output/ Build Output API directory Vercel expects.
@@ -14,7 +16,11 @@ const isVercel = !!process.env.VERCEL;
 export default defineConfig({
   // Empty plugins array so `wrangler deploy` / @cloudflare/vite-plugin's
   // auto-modifier can locate and patch this config.
-  plugins: [],
+  plugins: [cloudflare({
+    viteEnvironment: {
+      name: "ssr"
+    }
+  })],
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     server: { entry: "server" },

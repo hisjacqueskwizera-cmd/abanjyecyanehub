@@ -4,7 +4,11 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const ActorInput = z.object({
   id: z.string().uuid().optional(),
-  slug: z.string().min(1).max(200).regex(/^[a-z0-9-]+$/, "lowercase letters, numbers, and hyphens only"),
+  slug: z
+    .string()
+    .min(1)
+    .max(200)
+    .regex(/^[a-z0-9-]+$/, "lowercase letters, numbers, and hyphens only"),
   full_name: z.string().min(1).max(200),
   nationality: z.string().max(120).nullable().optional(),
   dob: z.string().max(20).nullable().optional(),
@@ -34,50 +38,27 @@ const cleanNullable = (v: string | null | undefined) => {
 export const getAdminStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { userId } = context;
-    const [{ data: mine }, { count }] = await Promise.all([
-      supabaseAdmin.from("user_roles").select("role").eq("user_id", userId),
-      supabaseAdmin.from("user_roles").select("*", { count: "exact", head: true }).eq("role", "admin"),
+    const { supabase, userId } = context;
+    const [{ data: mine }, { data: exists }] = await Promise.all([
+      supabase.from("user_roles").select("role").eq("user_id", userId),
+      supabase.rpc("admin_exists"),
     ]);
     const isAdmin = (mine ?? []).some((r) => r.role === "admin");
-    return { isAdmin, adminCount: count ?? 0, userId };
+    return { isAdmin, adminCount: exists ? 1 : 0, userId };
   });
 
 export const claimFirstAdmin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { count } = await supabaseAdmin
-      .from("user_roles")
-      .select("*", { count: "exact", head: true })
-      .eq("role", "admin");
-    if ((count ?? 0) > 0) throw new Error("An admin already exists. Ask an existing admin to grant you access.");
-    const { error } = await supabaseAdmin
-      .from("user_roles")
-      .insert({ user_id: context.userId, role: "admin" });
+    const { error } = await context.supabase.rpc("claim_first_admin");
     if (error) throw new Error(error.message);
     return { ok: true };
   });
-
-async function assertAdmin(userId: string) {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data, error } = await supabaseAdmin
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", userId)
-    .eq("role", "admin")
-    .maybeSingle();
-  if (error) throw new Error(error.message);
-  if (!data) throw new Error("Forbidden: admin role required");
-}
 
 export const upsertActor = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => ActorInput.parse(d))
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.userId);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const payload = {
       slug: data.slug,
       full_name: data.full_name,
@@ -97,7 +78,7 @@ export const upsertActor = createServerFn({ method: "POST" })
       gallery: data.gallery ?? [],
     };
     if (data.id) {
-      const { data: row, error } = await supabaseAdmin
+      const { data: row, error } = await context.supabase
         .from("actors")
         .update(payload)
         .eq("id", data.id)
@@ -106,7 +87,7 @@ export const upsertActor = createServerFn({ method: "POST" })
       if (error) throw new Error(error.message);
       return row;
     }
-    const { data: row, error } = await supabaseAdmin
+    const { data: row, error } = await context.supabase
       .from("actors")
       .insert(payload)
       .select("id, slug")
@@ -119,9 +100,7 @@ export const deleteActor = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.userId);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.from("actors").delete().eq("id", data.id);
+    const { error } = await context.supabase.from("actors").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -129,12 +108,10 @@ export const deleteActor = createServerFn({ method: "POST" })
 export const listActorsAdmin = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertAdmin(context.userId);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await context.supabase
       .from("actors")
       .select(
-        "id, slug, full_name, nationality, dob, tagline, bio, genres, languages, instagram, linkedin, filmography, journey, featured, sort_order, profile_photo, gallery"
+        "id, slug, full_name, nationality, dob, tagline, bio, genres, languages, instagram, linkedin, filmography, journey, featured, sort_order, profile_photo, gallery",
       )
       .order("sort_order", { ascending: true });
     if (error) throw new Error(error.message);
